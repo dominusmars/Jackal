@@ -3,6 +3,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+const { title } = require('process');
 
 const isProduction = process.env.NODE_ENV == 'production';
 
@@ -10,6 +11,7 @@ const stylesHandler = 'style-loader';
 
 
 const config = {
+    devtool: 'source-map',
     entry: "./client/index.tsx",
     output: {
         filename: "bundle.js",
@@ -18,13 +20,9 @@ const config = {
     devServer: {
         open: true,
         host: 'localhost',
-        server: '8080'
+        server: '3000'
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: 'index.html',
-        }),
-
         // Add your plugins here
         // Learn more about plugins from https://webpack.js.org/configuration/plugins/
     ],

@@ -1,16 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <meta name="description" content="Jackal" />
-        <link rel="icon" href="favicon.ico" />
-        <link rel="stylesheet" href="/public/index.css" />
-        <title>Jackal</title>
+        <meta charset="utf-8" />
+        <title>Jackel</title>
+        <script defer src="/public/bundle.js"></script>
     </head>
-    <body>
-        <div id="root"></div>
-        <script src="/public/bundle.js"></script>
-    </body>
+    <body id="root"></body>
+    
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker
+                    .register("service-worker.js")
+                    .then((registration) => {
+                        console.log("Service Worker registered: ", registration);
+                    })
+                    .catch((registrationError) => {
+                        console.error("Service Worker registration failed: ", registrationError);
+                    });
+            });
+        }
+    </script>
 </html>
