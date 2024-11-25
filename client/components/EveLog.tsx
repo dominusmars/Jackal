@@ -11,7 +11,6 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
     if (!log) {
         return null;
     }
-    console.log(log);
 
     return (
         <>

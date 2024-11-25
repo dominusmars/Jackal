@@ -35,8 +35,10 @@ const MainNavBar: React.FC = () => {
                 <Navbar.Link href="/" active={true}>
                     Home
                 </Navbar.Link>
+                <Navbar.Link href="/map">Map</Navbar.Link>
                 <Navbar.Link href="/stats">Stats</Navbar.Link>
                 <Navbar.Link href="/service">Service</Navbar.Link>
+
                 {/* <Navbar.Link href="/pricing">Pricing</Navbar.Link>
                 <Navbar.Link href="/contact">Contact</Navbar.Link> */}
             </Navbar.Collapse>

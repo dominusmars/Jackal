@@ -4,6 +4,7 @@ import { EveProvider } from "./Providers/EveProvider";
 import Home from "./pages/Home";
 import MainNavBar from "./components/Navbar";
 import "./styles.css";
+import Map from "./pages/Map";
 
 const App: React.FC = () => {
     return (
@@ -13,6 +14,8 @@ const App: React.FC = () => {
                 <Router>
                     <Routes>
                         <Route path="/" Component={Home} />
+                        <Route path="/map" Component={Map} />
+
                         {/* <Route path="/about" Component={} /> */}
                     </Routes>
                 </Router>

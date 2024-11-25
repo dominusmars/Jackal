@@ -6,12 +6,7 @@ const app = express();
 
 async function startServer() {
     app.use(morgan("combined"));
-    app.use(
-        "/",
-        await router({
-            additionalMethods: ["ws"],
-        })
-    );
+    await createRouter(app);
     app.use("/public/", express.static("public"));
 
     app.use("*", (req: express.Request, res: express.Response) => {
