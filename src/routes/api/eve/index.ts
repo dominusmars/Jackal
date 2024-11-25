@@ -1,66 +1,35 @@
 import { Request, Response } from "express";
-import fs from "fs";
 import { createReadStream } from "fs";
 import readline from "readline";
+import { getEVELogPath } from "../../../utils/suricata";
 
 export const GET = [
     async (req: Request, res: Response) => {
-        res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
-        res.setHeader("Connection", "keep-alive");
-        res.flushHeaders();
+        res.setHeader("Content-Type", "application/json");
 
-        let stream = createReadStream("eve.json", { encoding: "utf8" });
-        let rl = readline.createInterface({
+        let stream = createReadStream(getEVELogPath(), { encoding: "utf8" });
+        const rl = readline.createInterface({
             input: stream,
             crlfDelay: Infinity,
         });
 
-        const sendLine = (line: string) => {
-            if (line.trim() !== "") {
-                try {
-                    res.write(`data: ${line.trim()}\n\n`);
-                } catch (parseError) {
-                    console.error("Error parsing line:", parseError);
-                }
+        const jsonArray: any[] = [];
+
+        rl.on("line", (line) => {
+            try {
+                const json = JSON.parse(line);
+                jsonArray.push(json);
+            } catch (error) {
+                console.error("Error parsing JSON line:", error);
             }
-        };
-
-        rl.on("line", sendLine);
-
-        rl.on("error", (error) => {
-            console.error("Error reading eve.json file:", error);
-            res.status(500).json({ error: "Could not read eve.json file" });
+        });
+        rl.on("close", () => {
+            res.json(jsonArray);
         });
 
-        const watchFile = () => {
-            fs.watch("eve.json", (eventType) => {
-                if (eventType === "change") {
-                    stream.close();
-                    rl.close();
-
-                    stream = createReadStream("eve.json", { encoding: "utf8" });
-                    rl = readline.createInterface({
-                        input: stream,
-                        crlfDelay: Infinity,
-                    });
-
-                    rl.on("line", sendLine);
-                    rl.on("error", (error) => {
-                        console.error("Error reading eve.json file:", error);
-                        res.status(500).json({
-                            error: "Could not read eve.json file",
-                        });
-                    });
-                }
-            });
-        };
-
-        watchFile();
-
-        req.on("close", () => {
-            rl.close();
-            stream.close();
+        stream.on("error", (error) => {
+            console.error("Error reading eve.json file:", error);
+            res.status(500).json({ error: "Could not read eve.json file" });
         });
     },
 ];

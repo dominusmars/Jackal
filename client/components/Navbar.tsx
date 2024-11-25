@@ -4,28 +4,19 @@ import { Navbar, Dropdown, Avatar } from "flowbite-react";
 const MainNavBar: React.FC = () => {
     return (
         <Navbar fluid={true} rounded={true}>
-            <Navbar.Brand href="https://flowbite.com">
+            <Navbar.Brand href="/">
                 <img
-                    src="https://flowbite.com/docs/images/logo.svg"
+                    src="/public/icon.svg"
                     className="mr-3 h-6 sm:h-9"
                     alt="Flowbite Logo"
                 />
+
                 <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                     Jackal
                 </span>
             </Navbar.Brand>
             <div className="flex md:order-2">
-                <Dropdown
-                    arrowIcon={false}
-                    inline={true}
-                    label={
-                        <Avatar
-                            alt="User settings"
-                            img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                            rounded={true}
-                        />
-                    }
-                >
+                <Dropdown arrowIcon={false} inline={true}>
                     <Dropdown.Header>
                         <span className="block text-sm">Bonnie Green</span>
                         <span className="block truncate text-sm font-medium">
@@ -41,13 +32,13 @@ const MainNavBar: React.FC = () => {
                 <Navbar.Toggle />
             </div>
             <Navbar.Collapse>
-                <Navbar.Link href="/home" active={true}>
+                <Navbar.Link href="/" active={true}>
                     Home
                 </Navbar.Link>
-                <Navbar.Link href="/about">About</Navbar.Link>
-                <Navbar.Link href="/services">Services</Navbar.Link>
-                <Navbar.Link href="/pricing">Pricing</Navbar.Link>
-                <Navbar.Link href="/contact">Contact</Navbar.Link>
+                <Navbar.Link href="/stats">Stats</Navbar.Link>
+                <Navbar.Link href="/service">Service</Navbar.Link>
+                {/* <Navbar.Link href="/pricing">Pricing</Navbar.Link>
+                <Navbar.Link href="/contact">Contact</Navbar.Link> */}
             </Navbar.Collapse>
         </Navbar>
     );
