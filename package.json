@@ -2,13 +2,13 @@
     "name": "jackal",
     "version": "1.0.0",
     "description": "Jackal",
-    "main": "dist/index.js",
+    "main": "dist/src/index.js",
     "scripts": {
         "test": "jest",
         "build": "webpack --mode=production --node-env=production",
         "build:dev": "concurrently webpack --mode=development",
-        "run:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
-        "run": "node dist/index.js",
+        "run:dev": "cross-env NODE_ENV=development nodemon dist/src/index.js",
+        "run": "node dist/src/index.js",
         "build:prod": "webpack --mode=production --node-env=production",
         "watch": "concurrently --kill-others \"tsc --watch\" \"webpack -w\"",
         "serve": "webpack serve"

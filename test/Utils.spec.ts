@@ -1,4 +1,8 @@
-import { makeSuricataRuleString, parseSuricataRule } from "../src/utils/suricata";
+import {
+    makeSuricataRuleString,
+    parseSuricataRule,
+} from "../src/utils/suricata";
+import { SuricataRule } from "../types/SuricataRule";
 
 describe("Suricata Utils", () => {
     it("should parse rule from string", () => {
@@ -67,7 +71,7 @@ describe("Suricata Utils", () => {
         expect(parsedRule).toBe(false);
     });
     it("should generate rule from suricataRule interface", () => {
-        const rule = {
+        const rule: SuricataRule = {
             action: "alert",
             protocol: "http",
             source: "any",

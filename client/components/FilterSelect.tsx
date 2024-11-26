@@ -11,7 +11,11 @@ interface FilterSelectMultiProps {
     options: string[];
     onChange: (value: string[]) => void;
 }
-const FilterSelect: React.FC<FilterSelectProps> = ({ label, options, onChange }) => (
+const FilterSelect: React.FC<FilterSelectProps> = ({
+    label,
+    options,
+    onChange,
+}) => (
     <>
         <TextInput
             list={`${label}-options`}
@@ -28,7 +32,11 @@ const FilterSelect: React.FC<FilterSelectProps> = ({ label, options, onChange })
         </datalist>
     </>
 );
-const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChange }) => {
+const MultiSelect: React.FC<FilterSelectMultiProps> = ({
+    label,
+    options,
+    onChange,
+}) => {
     const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
     const [regex, setRegex] = React.useState<string>("");
 
@@ -43,7 +51,9 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
     const handleRegexSelect = () => {
         try {
             const regexPattern = new RegExp(regex);
-            const matchedOptions = options.filter((option) => regexPattern.test(option));
+            const matchedOptions = options.filter((option) =>
+                regexPattern.test(option)
+            );
             setSelectedOptions(matchedOptions);
         } catch (e) {
             console.error("Invalid regex pattern");
@@ -52,17 +62,24 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
 
     return (
         <>
-            <label className="block text-gray-700 dark:text-white">{label}</label>
+            <label className="block text-gray-700 dark:text-white">
+                {label}
+            </label>
             <div className="flex gap-3 p-2">
                 <TextInput
                     className="mt-2 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder={`Type ${label} separated by commas`}
                     onChange={(e) => {
-                        const typedOptions = e.target.value.split(",").map((opt) => opt.trim());
+                        const typedOptions = e.target.value
+                            .split(",")
+                            .map((opt) => opt.trim());
                         setSelectedOptions(typedOptions);
                     }}
                 />
-                <Button className="mt-2 p-2 bg-blue-500 text-white rounded-md" onClick={handleSelectAll}>
+                <Button
+                    className="mt-2 p-2 bg-blue-500 text-white rounded-md"
+                    onClick={handleSelectAll}
+                >
                     Select All
                 </Button>
                 <TextInput
@@ -70,7 +87,10 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
                     placeholder="(Regex)"
                     onChange={(e) => setRegex(e.target.value)}
                 />
-                <Button className="mt-2 p-2 bg-green-500 text-white rounded-md" onClick={handleRegexSelect}>
+                <Button
+                    className="mt-2 p-2 bg-green-500 text-white rounded-md"
+                    onClick={handleRegexSelect}
+                >
                     Select by Regex
                 </Button>
             </div>
@@ -78,7 +98,10 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
                 multiple
                 value={selectedOptions}
                 onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+                    const selected = Array.from(
+                        e.target.selectedOptions,
+                        (option) => option.value
+                    );
                     setSelectedOptions(selected);
                 }}
                 className="block w-full mt-1 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"

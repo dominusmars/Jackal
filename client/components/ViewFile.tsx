@@ -22,7 +22,7 @@ const ViewFile: React.FC<ViewFileProps> = ({ fileUrl }) => {
                 }
                 const text = await response.text();
                 setFileContent(text);
-            } catch (error) {
+            } catch (error: any) {
                 setError(error.message);
             }
         };
@@ -56,7 +56,9 @@ const ViewFile: React.FC<ViewFileProps> = ({ fileUrl }) => {
     return (
         <div className="p-4 bg-gray-100 rounded shadow-md">
             <h1 className="text-xl font-bold mb-4">{basename}</h1>
-            <pre className="bg-white p-4 rounded border max-h-screen overflow-y-scroll">{fileContent}</pre>
+            <pre className="bg-white p-4 rounded border max-h-screen overflow-y-scroll">
+                {fileContent}
+            </pre>
         </div>
     );
 };

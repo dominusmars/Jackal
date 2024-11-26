@@ -1,65 +1,35 @@
 import React, { useState, useEffect } from "react";
-
-interface Rule {
-    id: number;
-    content: string;
-}
+import { useRules } from "../Providers/RulesProvider";
+import RuleForm from "../components/RuleForm";
+import { Accordion } from "flowbite-react";
 
 const Rules: React.FC = () => {
-    const [rules, setRules] = useState<Rule[]>([]);
-    const [newRule, setNewRule] = useState<string>("");
-
-    useEffect(() => {
-        // Fetch rules from an API or local storage
-        const fetchRules = async () => {
-            // Replace with your API call
-            const response = await fetch("/api/rules");
-            const data = await response.json();
-            setRules(data);
-        };
-
-        fetchRules();
-    }, []);
-
-    const addRule = async () => {
-        if (newRule.trim() === "") return;
-
-        // Replace with your API call
-        const response = await fetch("/api/rules", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: newRule }),
-        });
-
-        const data = await response.json();
-        setRules([...rules, data]);
-        setNewRule("");
-    };
-
-    const deleteRule = async (id: number) => {
-        // Replace with your API call
-        await fetch(`/api/rules/${id}`, {
-            method: "DELETE",
-        });
-
-        setRules(rules.filter((rule) => rule.id !== id));
-    };
+    const { rules, addRule, removeRule } = useRules();
 
     return (
-        <div>
-            <h1>Suricata Rules</h1>
-            <ul>
-                {rules.map((rule) => (
-                    <li key={rule.id}>
-                        {rule.content}
-                        <button onClick={() => deleteRule(rule.id)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
-            <input type="text" value={newRule} onChange={(e) => setNewRule(e.target.value)} placeholder="Add new rule" />
-            <button onClick={addRule}>Add Rule</button>
+        <div className="min-h-screen flex bg-gray-100">
+            <div className="flex-1 justify-start flex-col gap-1">
+                <div className="flex justify-between items-center bg-gray-200 p-2">
+                    <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">
+                        Suricata Rules
+                    </h1>
+                    <div className="flex gap-2">
+                        <span className="text-gray-800 dark:text-white">
+                            Rules: {rules.length}
+                        </span>
+                    </div>
+                </div>
+                <div className="p-4">
+                    <Accordion collapseAll>
+                        <Accordion.Panel key={""}>
+                            <Accordion.Title>Add Rule</Accordion.Title>
+                            <Accordion.Content>
+                                <RuleForm addRule={addRule} />
+                            </Accordion.Content>
+                        </Accordion.Panel>
+                    </Accordion>
+                </div>
+            </div>
         </div>
     );
 };
