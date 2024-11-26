@@ -1,0 +1,67 @@
+23/11/2024 -- 11:10:45 - <Notice> - This is Suricata version 6.0.15 RELEASE running in SYSTEM mode
+23/11/2024 -- 11:10:45 - <Info> - CPUs/cores online: 1
+23/11/2024 -- 11:10:45 - <Info> - Setting engine mode to IDS mode by default
+23/11/2024 -- 11:10:45 - <Info> - master exception-policy set to: auto
+23/11/2024 -- 11:10:45 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 11:10:45 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 11:10:45 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 11:10:45 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 11:10:46 - <Info> - fast output device (regular) initialized: fast.log
+23/11/2024 -- 11:10:46 - <Info> - eve-log output device (regular) initialized: eve.json
+23/11/2024 -- 11:10:46 - <Info> - stats output device (regular) initialized: stats.log
+23/11/2024 -- 11:10:46 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 11:10:46 - <Warning> - [ERRCODE: SC_ERR_NO_RULES(42)] - No rule files match the pattern /var/lib/suricata/rules/suricata.rules
+23/11/2024 -- 11:10:46 - <Warning> - [ERRCODE: SC_ERR_NO_RULES_LOADED(43)] - 1 rule files specified, but no rules were loaded!
+23/11/2024 -- 11:10:46 - <Info> - Threshold config parsed: 0 rule(s) found
+23/11/2024 -- 11:10:46 - <Info> - 0 signatures processed. 0 are IP-only rules, 0 are inspecting packet payload, 0 inspect application layer, 0 are decoder event only
+23/11/2024 -- 11:10:46 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 11:10:46 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 11:10:46 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 11:10:46 - <Info> - Using unix socket file '/var/run/suricata/suricata-command.socket'
+23/11/2024 -- 11:10:46 - <Notice> - all 2 packet processing threads, 4 management threads initialized, engine started.
+23/11/2024 -- 11:10:46 - <Info> - All AFP capture threads are running.
+23/11/2024 -- 11:13:18 - <Notice> - This is Suricata version 6.0.15 RELEASE running in SYSTEM mode
+23/11/2024 -- 11:13:18 - <Info> - CPUs/cores online: 1
+23/11/2024 -- 11:13:18 - <Info> - Setting engine mode to IDS mode by default
+23/11/2024 -- 11:13:18 - <Info> - master exception-policy set to: auto
+23/11/2024 -- 11:13:18 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 11:13:18 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 11:13:18 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 11:13:18 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 11:13:18 - <Info> - fast output device (regular) initialized: fast.log
+23/11/2024 -- 11:13:18 - <Info> - eve-log output device (regular) initialized: eve.json
+23/11/2024 -- 11:13:18 - <Info> - stats output device (regular) initialized: stats.log
+23/11/2024 -- 11:13:18 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 11:13:18 - <Warning> - [ERRCODE: SC_ERR_NO_RULES(42)] - No rule files match the pattern /var/lib/suricata/rules/suricata.rules
+23/11/2024 -- 11:13:18 - <Warning> - [ERRCODE: SC_ERR_NO_RULES_LOADED(43)] - 1 rule files specified, but no rules were loaded!
+23/11/2024 -- 11:13:18 - <Info> - Threshold config parsed: 0 rule(s) found
+23/11/2024 -- 11:13:18 - <Info> - 0 signatures processed. 0 are IP-only rules, 0 are inspecting packet payload, 0 inspect application layer, 0 are decoder event only
+23/11/2024 -- 11:13:18 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 11:13:18 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 11:13:18 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 11:13:18 - <Info> - Using unix socket file '/var/run/suricata/suricata-command.socket'
+23/11/2024 -- 11:13:18 - <Notice> - all 2 packet processing threads, 4 management threads initialized, engine started.
+23/11/2024 -- 11:13:18 - <Info> - All AFP capture threads are running.
+23/11/2024 -- 11:13:23 - <Error> - [ERRCODE: SC_ERR_AFP_READ(191)] - Error reading data from iface 'eth1': (100) Network is down
+23/11/2024 -- 15:28:17 - <Notice> - This is Suricata version 6.0.15 RELEASE running in SYSTEM mode
+23/11/2024 -- 15:28:17 - <Info> - CPUs/cores online: 1
+23/11/2024 -- 15:28:17 - <Info> - Setting engine mode to IDS mode by default
+23/11/2024 -- 15:28:17 - <Info> - master exception-policy set to: auto
+23/11/2024 -- 15:28:17 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 15:28:17 - <Info> - Found an MTU of 1500 for 'eth0'
+23/11/2024 -- 15:28:17 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 15:28:17 - <Info> - Found an MTU of 1500 for 'eth1'
+23/11/2024 -- 15:28:17 - <Info> - fast output device (regular) initialized: fast.log
+23/11/2024 -- 15:28:17 - <Info> - eve-log output device (regular) initialized: eve.json
+23/11/2024 -- 15:28:17 - <Info> - stats output device (regular) initialized: stats.log
+23/11/2024 -- 15:28:17 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 15:28:17 - <Warning> - [ERRCODE: SC_ERR_NO_RULES(42)] - No rule files match the pattern /var/lib/suricata/rules/suricata.rules
+23/11/2024 -- 15:28:17 - <Warning> - [ERRCODE: SC_ERR_NO_RULES_LOADED(43)] - 1 rule files specified, but no rules were loaded!
+23/11/2024 -- 15:28:17 - <Info> - Threshold config parsed: 0 rule(s) found
+23/11/2024 -- 15:28:17 - <Info> - 0 signatures processed. 0 are IP-only rules, 0 are inspecting packet payload, 0 inspect application layer, 0 are decoder event only
+23/11/2024 -- 15:28:17 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 15:28:17 - <Info> - Going to use 1 thread(s)
+23/11/2024 -- 15:28:17 - <Info> - Running in live mode, activating unix socket
+23/11/2024 -- 15:28:17 - <Info> - Using unix socket file '/var/run/suricata/suricata-command.socket'
+23/11/2024 -- 15:28:17 - <Notice> - all 2 packet processing threads, 4 management threads initialized, engine started.
+23/11/2024 -- 15:28:17 - <Info> - All AFP capture threads are running.

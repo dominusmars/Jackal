@@ -1,5 +1,5 @@
 import React, { act, useState } from "react";
-import { SuricataRule } from "../../types/SuricataRule";
+import { SuricataRule } from "../../types/suricata";
 import { Button, TextInput, Select } from "flowbite-react";
 import RuleOptions from "./RuleOptions";
 interface RuleFormProps {
@@ -19,9 +19,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ addRule }) => {
     });
     const [error, setError] = useState<string | null>(null);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setRule((prevRule) => ({
             ...prevRule,
@@ -51,12 +49,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ addRule }) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Select
-                name="action"
-                value={rule.action}
-                onChange={handleChange}
-                required
-            >
+            <Select name="action" value={rule.action} onChange={handleChange} required>
                 <option value="">Select Action</option>
                 <option value="alert">Alert</option>
                 <option value="drop">Drop</option>
@@ -67,51 +60,28 @@ const RuleForm: React.FC<RuleFormProps> = ({ addRule }) => {
                 <option value="rejectboth">Reject Both</option>
             </Select>
             <TextInput
-                name="protocol"
-                value={rule.protocol}
-                onChange={handleChange}
-                placeholder="Protocol"
+                name="msg"
+                value={(rule.options["msg"] as string) || ""}
+                onChange={(e) => {
+                    setRule((prevRule) => ({
+                        ...prevRule,
+                        options: { ...prevRule.options, msg: e.target.value },
+                    }));
+                }}
+                placeholder="Message"
                 required
             />
-            <TextInput
-                name="source"
-                value={rule.source}
-                onChange={handleChange}
-                placeholder="Source"
-                required
-            />
-            <TextInput
-                name="source_port"
-                value={rule.source_port}
-                onChange={handleChange}
-                placeholder="Source Port"
-                required
-            />
-            <Select
-                name="direction"
-                value={rule.direction}
-                onChange={handleChange}
-                required
-            >
+            <TextInput name="protocol" value={rule.protocol} onChange={handleChange} placeholder="Protocol" required />
+            <TextInput name="source" value={rule.source} onChange={handleChange} placeholder="Source" required />
+            <TextInput name="source_port" value={rule.source_port} onChange={handleChange} placeholder="Source Port" required />
+            <Select name="direction" value={rule.direction} onChange={handleChange} required>
                 <option value="">Select Direction</option>
                 <option value="->">{"to"}</option>
                 <option value="<-">{"from"}</option>
                 <option value="<>">{"both"}</option>
             </Select>
-            <TextInput
-                name="destination"
-                value={rule.destination}
-                onChange={handleChange}
-                placeholder="Destination"
-                required
-            />
-            <TextInput
-                name="destination_port"
-                value={rule.destination_port}
-                onChange={handleChange}
-                placeholder="Destination Port"
-                required
-            />
+            <TextInput name="destination" value={rule.destination} onChange={handleChange} placeholder="Destination" required />
+            <TextInput name="destination_port" value={rule.destination_port} onChange={handleChange} placeholder="Destination Port" required />
             <RuleOptions
                 options={rule.options}
                 setOptions={(options) =>

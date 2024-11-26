@@ -17,22 +17,17 @@ const App: React.FC = () => {
                 <RulesProvider>
                     <div className="">
                         <MainNavBar />
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/map" element={<Map />} />
-                            <Route
-                                path="/stats"
-                                element={<ViewFile fileUrl="/api/file/stats" />}
-                            />
-                            <Route
-                                path="/service"
-                                element={
-                                    <ViewFile fileUrl="/api/file/service" />
-                                }
-                            />
-                            <Route path="/rules" element={<Rules />} />
-                            {/* <Route path="/about" element={} /> */}
-                        </Routes>
+                        <div className="p-6 bg-gray-100 min-h-screen">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/map" element={<Map />} />
+                                <Route path="/stats" element={<ViewFile fileUrl="/api/file/stats" />} />
+                                <Route path="/service" element={<ViewFile fileUrl="/api/file/service" />} />
+                                <Route path="/rules" element={<Rules />} />
+                                {/* <Route path="/about" element={} /> */}
+                            </Routes>
+                        </div>
+
                         <Footer />
                     </div>
                 </RulesProvider>

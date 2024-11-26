@@ -16,14 +16,9 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
         <>
             <tr
                 onClick={() => setShowDetails(!showDetails)}
-                className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 ease-in-out transition-all"
+                className="cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 ease-in-out transition-all"
             >
-                <td className="border px-4 py-2">
-                    {format(
-                        new Date(log.timestamp),
-                        "MMMM dd, yyyy, hh:mm:ss a"
-                    )}
-                </td>
+                <td className="border px-4 py-2">{format(new Date(log.timestamp), "MMMM dd, yyyy, hh:mm:ss a")}</td>
                 <td className="border px-4 py-2">{log.in_iface}</td>
                 <td className="border px-4 py-2">{log.event_type}</td>
                 <td className="border px-4 py-2">{log.src_ip}</td>
@@ -39,9 +34,7 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                             <p>Source IP: {log.src_ip}</p>
                             {log.src_port && <p>Source Port: {log.src_port}</p>}
                             <p>Destination IP: {log.dest_ip}</p>
-                            {log.dest_port && (
-                                <p>Destination Port: {log.dest_port}</p>
-                            )}
+                            {log.dest_port && <p>Destination Port: {log.dest_port}</p>}
                             {log.proto && <p>Protocol: {log.proto}</p>}
                             {log.alert && (
                                 <div>
@@ -55,9 +48,7 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                                 <div>
                                     <p>HTTP Hostname: {log.http.hostname}</p>
                                     <p>URL: {log.http.url}</p>
-                                    <p>
-                                        User Agent: {log.http.http_user_agent}
-                                    </p>
+                                    <p>User Agent: {log.http.http_user_agent}</p>
                                     <p>Method: {log.http.http_method}</p>
                                     <p>Status: {log.http.status}</p>
                                 </div>
@@ -78,9 +69,7 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                             )}
                         </div>
                         <h3 className="">Raw Log:</h3>
-                        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-x-auto">
-                            {JSON.stringify(log, null, 4)}
-                        </pre>
+                        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-x-auto">{JSON.stringify(log, null, 4)}</pre>
                     </td>
                 </tr>
             )}

@@ -75,7 +75,7 @@ const NetworkMap = () => {
     }, [networkData]);
 
     return (
-        <div className="w-screen">
+        <div className="">
             <div className="flex-1 justify-start flex-col gap-1">
                 <div className="flex justify-between items-center bg-gray-200 p-2">
                     <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">Network Map</h1>
@@ -90,7 +90,7 @@ const NetworkMap = () => {
                     <MultiSelect label="Destination IP" options={destIps} onChange={(value: string[]) => setSearch({ ...search, destIps: value })} />
                 </div>
             </div>
-            <div className="min-h-lvh w-screen bg-slate-500" style={{ height: "80em" }} ref={networkRef}></div>;
+            <div className="min-h-lvh bg-slate-500 shadow-lg" style={{ height: "80em" }} ref={networkRef}></div>
         </div>
     );
 };

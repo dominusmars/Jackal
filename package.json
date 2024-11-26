@@ -4,7 +4,7 @@
     "description": "Jackal",
     "main": "dist/src/index.js",
     "scripts": {
-        "test": "jest",
+        "test": "jest --detectOpenHandles --forceExit --silent=false --runInBand --no-cache",
         "build": "webpack --mode=production --node-env=production",
         "build:dev": "concurrently webpack --mode=development",
         "run:dev": "cross-env NODE_ENV=development nodemon dist/src/index.js",
@@ -45,9 +45,11 @@
         "react-router-dom": "^7.0.1",
         "react-vis-network-graph": "^3.0.1",
         "reakeys": "^2.0.3",
+        "systeminformation": "^5.23.5",
         "tail": "^2.2.6",
         "tailwindcss": "^3.4.15",
-        "vis-network": "^9.1.9"
+        "vis-network": "^9.1.9",
+        "yaml": "^2.6.1"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",

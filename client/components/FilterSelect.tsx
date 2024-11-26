@@ -11,11 +11,7 @@ interface FilterSelectMultiProps {
     options: string[];
     onChange: (value: string[]) => void;
 }
-const FilterSelect: React.FC<FilterSelectProps> = ({
-    label,
-    options,
-    onChange,
-}) => (
+const FilterSelect: React.FC<FilterSelectProps> = ({ label, options, onChange }) => (
     <>
         <TextInput
             list={`${label}-options`}
@@ -32,11 +28,19 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
         </datalist>
     </>
 );
-const MultiSelect: React.FC<FilterSelectMultiProps> = ({
-    label,
-    options,
-    onChange,
-}) => {
+const SelectFrom: React.FC<FilterSelectProps> = ({ label, options, onChange }) => (
+    <>
+        <label className="block text-gray-700 dark:text-white">{label}</label>
+        <Select className="text-gray-800 dark:text-white p-2 border-s-slate-950 dark:border-s-slate-950" onChange={(e) => onChange(e.target.value)}>
+            {options.map((option, i) => (
+                <option key={i} value={option}>
+                    {option}
+                </option>
+            ))}
+        </Select>
+    </>
+);
+const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChange }) => {
     const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
     const [regex, setRegex] = React.useState<string>("");
 
@@ -51,9 +55,7 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({
     const handleRegexSelect = () => {
         try {
             const regexPattern = new RegExp(regex);
-            const matchedOptions = options.filter((option) =>
-                regexPattern.test(option)
-            );
+            const matchedOptions = options.filter((option) => regexPattern.test(option));
             setSelectedOptions(matchedOptions);
         } catch (e) {
             console.error("Invalid regex pattern");
@@ -62,24 +64,17 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({
 
     return (
         <>
-            <label className="block text-gray-700 dark:text-white">
-                {label}
-            </label>
-            <div className="flex gap-3 p-2">
+            <label className="text-lg block text-gray-700 dark:text-white">{label}</label>
+            <div className="flex gap-3 p-2 justify-center items-center">
                 <TextInput
                     className="mt-2 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder={`Type ${label} separated by commas`}
                     onChange={(e) => {
-                        const typedOptions = e.target.value
-                            .split(",")
-                            .map((opt) => opt.trim());
+                        const typedOptions = e.target.value.split(",").map((opt) => opt.trim());
                         setSelectedOptions(typedOptions);
                     }}
                 />
-                <Button
-                    className="mt-2 p-2 bg-blue-500 text-white rounded-md"
-                    onClick={handleSelectAll}
-                >
+                <Button className="bg-blue-500 text-white" onClick={handleSelectAll}>
                     Select All
                 </Button>
                 <TextInput
@@ -87,10 +82,7 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({
                     placeholder="(Regex)"
                     onChange={(e) => setRegex(e.target.value)}
                 />
-                <Button
-                    className="mt-2 p-2 bg-green-500 text-white rounded-md"
-                    onClick={handleRegexSelect}
-                >
+                <Button className="bg-green-500 text-white" onClick={handleRegexSelect}>
                     Select by Regex
                 </Button>
             </div>
@@ -98,10 +90,7 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({
                 multiple
                 value={selectedOptions}
                 onChange={(e) => {
-                    const selected = Array.from(
-                        e.target.selectedOptions,
-                        (option) => option.value
-                    );
+                    const selected = Array.from(e.target.selectedOptions, (option) => option.value);
                     setSelectedOptions(selected);
                 }}
                 className="block w-full mt-1 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -115,4 +104,4 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({
         </>
     );
 };
-export { MultiSelect, FilterSelect };
+export { MultiSelect, FilterSelect, SelectFrom };
