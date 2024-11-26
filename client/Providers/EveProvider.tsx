@@ -1,12 +1,4 @@
-import React, {
-    createContext,
-    useContext,
-    useState,
-    ReactNode,
-    useEffect,
-    useRef,
-    useCallback,
-} from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
 import { SuricataEveLog } from "../../types/EveLogs";
 import debounce from "lodash.debounce";
 
@@ -30,36 +22,25 @@ interface EveContextProps {
         startTime?: string;
         endTime?: string;
         search?: string;
+        inverseSearch?: string;
     }) => void;
     filteredLogs: SuricataEveLog[];
-    // filterLogs: (filters: {
-    //     eventType?: string;
-    //     interface?: string;
-    //     sourceIp?: string;
-    //     sourcePort?: string;
-    //     destIp?: string;
-    //     destPort?: string;
-    //     protocol?: string;
-    //     startTime?: string;
-    //     endTime?: string;
-    //     search?: string;
-    // }) => void;
 }
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
 
-export const EveProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
+export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [EveLogs, setEveLogs] = useState<SuricataEveLog[]>([]);
     const logsRef = useRef<SuricataEveLog[]>([]);
-    const [eventTypes, setEventTypes] = useState<Set<string>>(new Set());
-    const [interfaces, setInterfaces] = useState<Set<string>>(new Set());
-    const [sourceIps, setSourceIps] = useState<Set<string>>(new Set());
-    const [sourcePorts, setSourcePorts] = useState<Set<string>>(new Set());
-    const [destIps, setDestIps] = useState<Set<string>>(new Set());
-    const [destPorts, setDestPorts] = useState<Set<string>>(new Set());
-    const [protocols, setProtocols] = useState<Set<string>>(new Set());
+    const [filters, setFilters] = useState({
+        eventTypes: new Set<string>(),
+        interfaces: new Set<string>(),
+        sourceIps: new Set<string>(),
+        sourcePorts: new Set<string>(),
+        destIps: new Set<string>(),
+        destPorts: new Set<string>(),
+        protocols: new Set<string>(),
+    });
 
     const [searchParam, setSearchParam] = useState<{
         eventType?: string;
@@ -72,6 +53,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
         startTime?: string;
         endTime?: string;
         search?: string;
+        inverseSearch?: string;
     }>({
         eventType: "",
         interface: "",
@@ -82,6 +64,8 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
         protocol: "",
         startTime: "",
         endTime: "",
+        search: "",
+        inverseSearch: "",
     });
 
     const [filteredLogs, setFilteredLogs] = useState<SuricataEveLog[]>([]);
@@ -98,40 +82,29 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
                 startTime?: string;
                 endTime?: string;
                 search?: string;
+                inverseSearch?: string;
             }) => {
-                const regex = filters.search
-                    ? new RegExp(filters.search, "i")
-                    : null;
+                const regex = filters.search && filters.search != "" ? new RegExp(filters.search, "i") : null;
+                const regexInverse = filters.inverseSearch && filters.inverseSearch != "" ? new RegExp(filters.inverseSearch, "i") : null;
                 setFilteredLogs(
                     logsRef.current.filter((log) => {
                         const logTime = new Date(log.timestamp).getTime();
-                        const startTime = filters.startTime
-                            ? new Date(filters.startTime).getTime()
-                            : null;
-                        const endTime = filters.endTime
-                            ? new Date(filters.endTime).getTime()
-                            : null;
-
+                        const startTime = filters.startTime ? new Date(filters.startTime).getTime() : null;
+                        const endTime = filters.endTime ? new Date(filters.endTime).getTime() : null;
+                        // might want to append text to log to stop needing to stringify every time
+                        let stringify = JSON.stringify(log);
                         return (
-                            (!filters.eventType ||
-                                log.event_type === filters.eventType) &&
-                            (!filters.interface ||
-                                log.in_iface === filters.interface) &&
-                            (!filters.sourceIp ||
-                                log.src_ip === filters.sourceIp) &&
-                            (!filters.sourcePort ||
-                                (log.src_port &&
-                                    log.src_port ===
-                                        parseInt(filters.sourcePort))) &&
-                            (!filters.destIp ||
-                                log.dest_ip === filters.destIp) &&
-                            (!filters.destPort ||
-                                log.dest_port === parseInt(filters.destPort)) &&
-                            (!filters.protocol ||
-                                log.proto === filters.protocol) &&
+                            (!filters.eventType || log.event_type === filters.eventType) &&
+                            (!filters.interface || log.in_iface === filters.interface) &&
+                            (!filters.sourceIp || log.src_ip === filters.sourceIp) &&
+                            (!filters.sourcePort || (log.src_port && log.src_port === parseInt(filters.sourcePort))) &&
+                            (!filters.destIp || log.dest_ip === filters.destIp) &&
+                            (!filters.destPort || log.dest_port === parseInt(filters.destPort)) &&
+                            (!filters.protocol || log.proto === filters.protocol) &&
                             (!startTime || logTime >= startTime) &&
                             (!endTime || logTime <= endTime) &&
-                            (!regex || regex.test(JSON.stringify(log)))
+                            (!regex || regex.test(stringify)) &&
+                            (!regexInverse || !regexInverse.test(stringify))
                         );
                     })
                 );
@@ -152,6 +125,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
             startTime?: string;
             endTime?: string;
             search?: string;
+            inverseSearch?: string;
         }) => {
             let newParam = { ...searchParam, ...param };
             setSearchParam((prev) => ({ ...prev, ...param }));
@@ -167,37 +141,33 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
             logsRef.current = logs;
             setEveLogs((prev) => [...prev, ...logs]);
             setFilteredLogs((prev) => [...prev, ...logs]);
-            const newEventTypes = new Set(eventTypes);
-            const newInterfaces = new Set(interfaces);
-            const newSourceIps = new Set(sourceIps);
-            const newSourcePorts = new Set(sourcePorts);
-            const newDestIps = new Set(destIps);
-            const newDestPorts = new Set(destPorts);
-            const newProtocols = new Set(protocols);
+            const newEventTypes = new Set(filters.eventTypes);
+            const newInterfaces = new Set(filters.interfaces);
+            const newSourceIps = new Set(filters.sourceIps);
+            const newSourcePorts = new Set(filters.sourcePorts);
+            const newDestIps = new Set(filters.destIps);
+            const newDestPorts = new Set(filters.destPorts);
+            const newProtocols = new Set(filters.protocols);
 
             logs.forEach((log: SuricataEveLog) => {
-                if (log.event_type !== undefined)
-                    newEventTypes.add(log.event_type.trim());
-                if (log.in_iface !== undefined)
-                    newInterfaces.add(log.in_iface.trim());
-                if (log.src_ip !== undefined)
-                    newSourceIps.add(log.src_ip.trim());
-                if (log.src_port !== undefined)
-                    newSourcePorts.add(log.src_port.toString());
-                if (log.dest_ip !== undefined)
-                    newDestIps.add(log.dest_ip.trim());
-                if (log.dest_port !== undefined)
-                    newDestPorts.add(log.dest_port.toString());
+                if (log.event_type !== undefined) newEventTypes.add(log.event_type.trim());
+                if (log.in_iface !== undefined) newInterfaces.add(log.in_iface.trim());
+                if (log.src_ip !== undefined) newSourceIps.add(log.src_ip.trim());
+                if (log.src_port !== undefined) newSourcePorts.add(log.src_port.toString());
+                if (log.dest_ip !== undefined) newDestIps.add(log.dest_ip.trim());
+                if (log.dest_port !== undefined) newDestPorts.add(log.dest_port.toString());
                 if (log.proto) newProtocols.add(log.proto.trim());
             });
 
-            setEventTypes(newEventTypes);
-            setInterfaces(newInterfaces);
-            setSourceIps(newSourceIps);
-            setSourcePorts(newSourcePorts);
-            setDestIps(newDestIps);
-            setDestPorts(newDestPorts);
-            setProtocols(newProtocols);
+            setFilters({
+                eventTypes: newEventTypes,
+                interfaces: newInterfaces,
+                sourceIps: newSourceIps,
+                sourcePorts: newSourcePorts,
+                destIps: newDestIps,
+                destPorts: newDestPorts,
+                protocols: newProtocols,
+            });
         };
 
         getInitalLogs();
@@ -208,41 +178,33 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
             const newEvent: SuricataEveLog = JSON.parse(event.data);
             logsRef.current = [newEvent, ...logsRef.current];
             try {
-                setEventTypes((prevTypes) =>
-                    newEvent.event_type !== undefined
-                        ? new Set(prevTypes).add(newEvent.event_type.trim())
-                        : prevTypes
-                );
-                setInterfaces((prevInterfaces) =>
-                    newEvent.in_iface !== undefined
-                        ? new Set(prevInterfaces).add(newEvent.in_iface.trim())
-                        : prevInterfaces
-                );
-                setSourceIps((prevIps) =>
-                    newEvent.src_ip !== undefined
-                        ? new Set(prevIps).add(newEvent.src_ip.trim())
-                        : prevIps
-                );
-                setSourcePorts((prevPorts) =>
-                    newEvent.src_port !== undefined
-                        ? new Set(prevPorts).add(newEvent.src_port.toString())
-                        : prevPorts
-                );
-                setDestIps((prevIps) =>
-                    newEvent.dest_ip !== undefined
-                        ? new Set(prevIps).add(newEvent.dest_ip.trim())
-                        : prevIps
-                );
-                setDestPorts((prevPorts) =>
-                    newEvent.dest_port !== undefined
-                        ? new Set(prevPorts).add(newEvent.dest_port.toString())
-                        : prevPorts
-                );
-                setProtocols((prevProto) =>
-                    newEvent.proto
-                        ? new Set(prevProto).add(newEvent.proto.trim())
-                        : prevProto
-                );
+                setFilters((prevFilters) => {
+                    const newEventTypes = new Set(prevFilters.eventTypes);
+                    const newInterfaces = new Set(prevFilters.interfaces);
+                    const newSourceIps = new Set(prevFilters.sourceIps);
+                    const newSourcePorts = new Set(prevFilters.sourcePorts);
+                    const newDestIps = new Set(prevFilters.destIps);
+                    const newDestPorts = new Set(prevFilters.destPorts);
+                    const newProtocols = new Set(prevFilters.protocols);
+
+                    if (newEvent.event_type !== undefined) newEventTypes.add(newEvent.event_type.trim());
+                    if (newEvent.in_iface !== undefined) newInterfaces.add(newEvent.in_iface.trim());
+                    if (newEvent.src_ip !== undefined) newSourceIps.add(newEvent.src_ip.trim());
+                    if (newEvent.src_port !== undefined) newSourcePorts.add(newEvent.src_port.toString());
+                    if (newEvent.dest_ip !== undefined) newDestIps.add(newEvent.dest_ip.trim());
+                    if (newEvent.dest_port !== undefined) newDestPorts.add(newEvent.dest_port.toString());
+                    if (newEvent.proto) newProtocols.add(newEvent.proto.trim());
+
+                    return {
+                        eventTypes: newEventTypes,
+                        interfaces: newInterfaces,
+                        sourceIps: newSourceIps,
+                        sourcePorts: newSourcePorts,
+                        destIps: newDestIps,
+                        destPorts: newDestPorts,
+                        protocols: newProtocols,
+                    };
+                });
 
                 setEveLogs((prevLogs) => [newEvent, ...prevLogs]);
                 filterLogs(searchParam);
@@ -262,15 +224,14 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({
         <EveContext.Provider
             value={{
                 EveLogs,
-                eventTypes: Array.from(eventTypes),
-                interfaces: Array.from(interfaces),
-                sourceIps: Array.from(sourceIps),
-                sourcePorts: Array.from(sourcePorts),
-                destIps: Array.from(destIps),
-                destPorts: Array.from(destPorts),
-                protocols: Array.from(protocols),
+                eventTypes: Array.from(filters.eventTypes),
+                interfaces: Array.from(filters.interfaces),
+                sourceIps: Array.from(filters.sourceIps),
+                sourcePorts: Array.from(filters.sourcePorts),
+                destIps: Array.from(filters.destIps),
+                destPorts: Array.from(filters.destPorts),
+                protocols: Array.from(filters.protocols),
                 setSearch,
-                // filterLogs,
 
                 filteredLogs,
             }}

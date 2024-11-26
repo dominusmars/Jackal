@@ -5,22 +5,26 @@ import Home from "./pages/Home";
 import MainNavBar from "./components/Navbar";
 import "./styles.css";
 import Map from "./pages/Map";
+import ViewFile from "./components/ViewFile";
+import Rules from "./pages/Rules";
 
 const App: React.FC = () => {
     return (
-        <EveProvider>
-            <div className="">
-                <MainNavBar />
-                <Router>
+        <Router>
+            <EveProvider>
+                <div className="">
+                    <MainNavBar />
                     <Routes>
-                        <Route path="/" Component={Home} />
-                        <Route path="/map" Component={Map} />
-
-                        {/* <Route path="/about" Component={} /> */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/map" element={<Map />} />
+                        <Route path="/stats" element={<ViewFile fileUrl="/api/file/stats" />} />
+                        <Route path="/service" element={<ViewFile fileUrl="/api/file/service" />} />
+                        <Route path="/rules" element={<Rules />} />
+                        {/* <Route path="/about" element={} /> */}
                     </Routes>
-                </Router>
-            </div>
-        </EveProvider>
+                </div>
+            </EveProvider>
+        </Router>
     );
 };
 
