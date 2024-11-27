@@ -72,7 +72,6 @@ class Suricata {
     async addInterface(networkInterface: SuricataInterface) {
         let config = this.getSuricataConfig();
         config["af-packet"].push(networkInterface);
-        console.log(config);
         this.writeSuricataConfig(config);
     }
     async removeInterface(networkInterface: SuricataInterface) {

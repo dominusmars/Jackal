@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { SuricataInterface, SuricataRule } from "../../../../types/suricata";
-import { makeSuricataRuleString, testSuricataRule } from "../../../utils/suricataUtils";
+import { SuricataInterface } from "../../../../types/suricata";
 import suricata from "../../../utils/suricataService";
 
 export const GET = [

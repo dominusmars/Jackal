@@ -1,11 +1,9 @@
 process.env.NODE_ENV = "development";
 import { getId } from "../src/utils/id";
-import { getRulesPath } from "../src/utils/suricata";
-import Suricata from "../src/utils/SuricataService";
+import suricata from "../src/utils/suricataService";
 import { SuricataRule } from "../types/suricata";
 import fs from "fs";
 describe("Suricata", () => {
-    let suricata = new Suricata();
     it("should add a rule", async () => {
         let rule: SuricataRule = {
             action: "alert",
@@ -25,7 +23,7 @@ describe("Suricata", () => {
         };
         await suricata.addRule(rule);
 
-        let rules = fs.readFileSync(getRulesPath(), "utf-8");
+        let rules = fs.readFileSync(suricata.getRulesPath(), "utf-8");
         expect(rules).toContain(
             `alert http any any -> any any (msg:"CVE-2006-2842; content:"../"; classtype:web-application-attack; sid:22006001; rev:1; metadata: from jackal;)`
         );
@@ -48,7 +46,7 @@ describe("Suricata", () => {
             },
         };
         await suricata.removeRule(rule);
-        let rules = fs.readFileSync(getRulesPath(), "utf-8");
+        let rules = fs.readFileSync(suricata.getRulesPath(), "utf-8");
         expect(rules).not.toContain(
             `alert http any any -> any any (msg:"CVE-2006-2842; content:"../"; classtype:web-application-attack; sid:22006001; rev:1; metadata: from jackal;)`
         );
