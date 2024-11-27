@@ -40,7 +40,7 @@ const NetworkMap = () => {
                 nodesMap.set(dest_ip, { id: dest_ip, label: dest_ip });
             }
 
-            edges.push({ id: crypto.randomUUID(), from: src_ip, to: dest_ip });
+            edges.push({ id: crypto.randomUUID(), from: src_ip, to: dest_ip, label: log.event_type, arrows: "to" });
         });
 
         const nodes = Array.from(nodesMap.values());
