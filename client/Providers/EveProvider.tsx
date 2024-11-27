@@ -135,7 +135,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 
     useEffect(() => {
-        const getInitalLogs = async () => {
+        const getInitialLogs = async () => {
             const response = await fetch("/api/eve");
             const logs = await response.json();
             logsRef.current = logs;
@@ -170,7 +170,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             });
         };
 
-        getInitalLogs();
+        getInitialLogs();
     }, []);
     useEffect(() => {
         const eventSource = new EventSource("/api/eve/stream");

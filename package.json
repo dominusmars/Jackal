@@ -8,6 +8,7 @@
         "build": "webpack --mode=production --node-env=production",
         "build:dev": "concurrently webpack --mode=development",
         "run:dev": "cross-env NODE_ENV=development nodemon dist/src/index.js",
+        "dev": "concurrently \"npm run watch\" \"npm run run:dev\"",
         "run": "node dist/src/index.js",
         "build:prod": "webpack --mode=production --node-env=production",
         "watch": "concurrently --kill-others \"tsc --watch\" \"webpack -w\"",
