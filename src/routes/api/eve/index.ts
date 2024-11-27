@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { createReadStream } from "fs";
 import readline from "readline";
-import { getEVELogPath } from "../../../utils/suricata";
-
+import suricata from "../../../utils/suricataService";
 export const GET = [
     async (req: Request, res: Response) => {
         res.setHeader("Content-Type", "application/json");
 
-        let stream = createReadStream(getEVELogPath(), { encoding: "utf8" });
+        let stream = createReadStream(suricata.getEVELogPath(), { encoding: "utf8" });
         const rl = readline.createInterface({
             input: stream,
             crlfDelay: Infinity,

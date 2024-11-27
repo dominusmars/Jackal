@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-
 import tail from "tail";
-import { getEVELogPath } from "../../../../utils/suricata";
+import suricata from "../../../../utils/suricataService";
 
 export const GET = [
     async (req: Request, res: Response) => {
@@ -20,7 +19,7 @@ export const GET = [
             }
         };
 
-        const eveTail = new tail.Tail(getEVELogPath());
+        const eveTail = new tail.Tail(suricata.getEVELogPath());
         eveTail.on("line", sendLine);
     },
 ];

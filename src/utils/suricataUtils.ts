@@ -1,18 +1,7 @@
 const isDev = process.env.NODE_ENV === "development";
 import { SuricataRule } from "../../types/suricata";
 import path from "path";
-function getEVELogPath(): string {
-    return isDev ? path.join(process.cwd(), "./demoData/eve.json") : "/var/log/suricata/eve.json";
-}
-function getStatsPath(): string {
-    return isDev ? path.join(process.cwd(), "./demoData/stats.log") : "/var/log/suricata/stats.log";
-}
-function getServicePath(): string {
-    return isDev ? path.join(process.cwd(), "./demoData/suricata.log") : "/var/log/suricata/suricata.log";
-}
-function getConfigPath(): string {
-    return isDev ? path.join(process.cwd(), "./demoData/suricata.yaml") : "/etc/suricata/suricata.yaml";
-}
+
 function getRulesPath(): string {
     return isDev ? path.join(process.cwd(), "./demoData/suricata.rules") : "/var/lib/suricata/rules/suricata.rules";
 }
@@ -77,4 +66,4 @@ function makeSuricataRuleString(rule: SuricataRule): string {
     return `${rule.action} ${rule.protocol} ${rule.source} ${rule.source_port} ${rule.direction} ${rule.destination} ${rule.destination_port} (${options}; ${metadata};)`;
 }
 
-export { getEVELogPath, getServicePath, getStatsPath, parseSuricataRule, makeSuricataRuleString, testSuricataRule, getConfigPath, getRulesPath };
+export { parseSuricataRule, makeSuricataRuleString, testSuricataRule, getRulesPath };

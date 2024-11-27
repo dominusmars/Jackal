@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getStatsPath } from "../../../../utils/suricata";
+import suricata from "../../../../utils/suricataService";
 export const GET = [
     async (req: Request, res: Response) => {
-        res.sendFile(getStatsPath());
+        res.sendFile(suricata.getStatsPath());
     },
 ];
