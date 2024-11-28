@@ -1,3 +1,4 @@
+import { Spinner } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 
 interface ViewFileProps {
@@ -48,7 +49,7 @@ const ViewFile: React.FC<ViewFileProps> = ({ fileUrl }) => {
     if (fileContent === null) {
         return (
             <div className="p-4 bg-gray-100 rounded shadow-md">
-                <div className="text-xl font-bold mb-4">Loading...</div>
+                <Spinner>Loading...</Spinner>
             </div>
         );
     }

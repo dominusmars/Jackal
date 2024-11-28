@@ -2,23 +2,22 @@ import React, { useEffect, useState } from "react";
 import { SuricataCaptureType, SuricataInterface } from "lib/suricata";
 import PageTitle from "@components/PageTitle";
 import Interface_ from "../components/Interface_";
-import { Tabs } from "flowbite-react";
+import { Spinner, Tabs } from "flowbite-react";
 import AfPacketInterfaceForm from "@/components/forms/interfaces/AfPacketInterfaceForm";
+import XDPInterfaceForm from "@/components/forms/interfaces/XDPInterfaceForm";
+import DPDKInterfaceForm from "@/components/forms/interfaces/DPDKInterfaceForm";
+import PCAPInterfaceForm from "@/components/forms/interfaces/PCAPInterfaceForm";
 type Props = {};
 
 function Interfaces({}: Props) {
     const [interfaces, setInterfaces] = useState<SuricataInterface[]>([]);
-    const [currentInterface, setCurrentInterface] =
-        useState<SuricataInterface | null>(null);
-    const [currentCaptureType, setCurrentCaptureType] =
-        useState<SuricataCaptureType>("af-packet");
+    const [currentInterface, setCurrentInterface] = useState<SuricataInterface | null>(null);
+    const [currentCaptureType, setCurrentCaptureType] = useState<SuricataCaptureType>("af-packet");
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchInterfaces = async (captureType: SuricataCaptureType) => {
-            let response = await fetch(
-                "/api/interfaces?" + `capture=${captureType}`
-            );
+            let response = await fetch("/api/interfaces?" + `capture=${captureType}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch interfaces");
             }
@@ -30,42 +29,28 @@ function Interfaces({}: Props) {
         fetchInterfaces(currentCaptureType);
     }, [currentCaptureType]);
 
-    const selectInterface = (interfaceName: string) => {
-        let selectedInterface = interfaces.find(
-            (interface_) => interface_.interface === interfaceName
-        );
-        if (selectedInterface) {
-            setCurrentInterface(selectedInterface);
-        }
-    };
     const handleDelete = async (Interface: SuricataInterface) => {
-        let response = await fetch(
-            `/api/interfaces?capture=${currentCaptureType}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(Interface),
-            }
-        );
+        let response = await fetch(`/api/interfaces?capture=${currentCaptureType}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(Interface),
+        });
         if (response.ok) {
             setCurrentInterface(null);
             return;
         }
         console.error("Failed to delete interface");
     };
-    const sumbitInterface = async (Interface: SuricataInterface) => {
-        let response = await fetch(
-            `/api/interfaces?capture=${currentCaptureType}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(Interface),
-            }
-        );
+    const submitInterface = async (Interface: SuricataInterface) => {
+        let response = await fetch(`/api/interfaces?capture=${currentCaptureType}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(Interface),
+        });
         if (response.ok) {
             let data = await response.json();
             setInterfaces((prevInterfaces) => [...prevInterfaces, data]);
@@ -86,113 +71,128 @@ function Interfaces({}: Props) {
                     ]}
                 />
                 <div className="p-4">
-                    <div className="overflow-x-auto">
-                        <Tabs>
-                            <Tabs.Item
-                                title="AF-Packet"
-                                onClick={() => {
-                                    setCurrentCaptureType("af-packet");
-                                }}
-                            >
-                                {loading && <div>Loading...</div>}
-                                {!loading && interfaces.length === 0 && (
-                                    <div>No interfaces found</div>
-                                )}
+                    <div className="overflow-x-auto p-3">
+                        <Tabs
+                            onActiveTabChange={(n) => {
+                                switch (n) {
+                                    case 0:
+                                        setCurrentCaptureType("af-packet");
+                                        break;
+                                    case 1:
+                                        setCurrentCaptureType("af-xdp");
+                                        break;
+                                    case 2:
+                                        setCurrentCaptureType("dpdk");
+                                        break;
+                                    case 3:
+                                        setCurrentCaptureType("pcap");
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }}
+                        >
+                            <Tabs.Item title="AF-Packet">
+                                {loading && <Spinner>Loading...</Spinner>}
+                                {!loading && interfaces.length === 0 && <div>No interfaces found</div>}
                                 {!loading && interfaces.length > 0 && (
                                     <Tabs>
                                         {interfaces.map((interface_) => (
                                             <Tabs.Item
                                                 key={interface_.interface}
                                                 title={interface_.interface}
-                                                onClick={() => {
-                                                    selectInterface(
-                                                        interface_.interface
-                                                    );
-                                                }}
-                                                active={
-                                                    currentInterface?.interface ===
-                                                    interface_.interface
-                                                }
+                                                active={currentInterface?.interface === interface_.interface}
                                             >
                                                 <Interface_
                                                     interface_={interface_}
-                                                    captureType={
-                                                        currentCaptureType
-                                                    }
-                                                    deleteInterface={() =>
-                                                        handleDelete(interface_)
-                                                    }
+                                                    captureType={currentCaptureType}
+                                                    deleteInterface={() => handleDelete(interface_)}
                                                 />
                                             </Tabs.Item>
                                         ))}
-                                        <Tabs.Item
-                                            title="Add Interface"
-                                            onClick={() => {}}
-                                        >
-                                            <AfPacketInterfaceForm
-                                                onSubmit={sumbitInterface}
-                                            />
+                                        <Tabs.Item title="Add Interface" onClick={() => {}}>
+                                            <AfPacketInterfaceForm onSubmit={submitInterface} />
                                         </Tabs.Item>
                                     </Tabs>
                                 )}
                             </Tabs.Item>
-                            <Tabs.Item
-                                title="AF-XDP"
-                                onClick={() => {
-                                    setCurrentCaptureType("af-xdp");
-                                }}
-                            >
+                            <Tabs.Item title="AF-XDP">
                                 <>
-                                    {loading && <div>Loading...</div>}
-                                    {!loading && interfaces.length === 0 && (
-                                        <div>No interfaces found</div>
-                                    )}
+                                    {loading && <Spinner>Loading...</Spinner>}
+                                    {!loading && interfaces.length === 0 && <div>No interfaces found</div>}
                                     {!loading && interfaces.length > 0 && (
                                         <Tabs>
                                             {interfaces.map((interface_) => (
                                                 <Tabs.Item
                                                     key={interface_.interface}
                                                     title={interface_.interface}
-                                                    onClick={() => {
-                                                        selectInterface(
-                                                            interface_.interface
-                                                        );
-                                                    }}
-                                                    active={
-                                                        currentInterface?.interface ===
-                                                        interface_.interface
-                                                    }
+                                                    active={currentInterface?.interface === interface_.interface}
                                                 >
                                                     <Interface_
                                                         interface_={interface_}
-                                                        captureType={
-                                                            currentCaptureType
-                                                        }
-                                                        deleteInterface={() =>
-                                                            handleDelete(
-                                                                interface_
-                                                            )
-                                                        }
+                                                        captureType={currentCaptureType}
+                                                        deleteInterface={() => handleDelete(interface_)}
                                                     />
                                                 </Tabs.Item>
                                             ))}
-                                            <Tabs.Item
-                                                title="Add Interface"
-                                                onClick={() => {}}
-                                            >
-                                                {/* <AfPacketInterfaceForm
-                                                    onSubmit={sumbitInterface}
-                                                /> */}
+                                            <Tabs.Item title="Add Interface" onClick={() => {}}>
+                                                <XDPInterfaceForm onSubmit={submitInterface} />
                                             </Tabs.Item>
                                         </Tabs>
                                     )}
                                 </>
                             </Tabs.Item>
                             <Tabs.Item title="DPDK" onClick={() => {}}>
-                                <div>DPDK</div>
+                                <>
+                                    {loading && <Spinner>Loading...</Spinner>}
+                                    {!loading && interfaces.length === 0 && <div>No interfaces found</div>}
+                                    {!loading && interfaces.length > 0 && (
+                                        <Tabs>
+                                            {interfaces.map((interface_) => (
+                                                <Tabs.Item
+                                                    key={interface_.interface}
+                                                    title={interface_.interface}
+                                                    active={currentInterface?.interface === interface_.interface}
+                                                >
+                                                    <Interface_
+                                                        interface_={interface_}
+                                                        captureType={currentCaptureType}
+                                                        deleteInterface={() => handleDelete(interface_)}
+                                                    />
+                                                </Tabs.Item>
+                                            ))}
+                                            <Tabs.Item title="Add Interface" onClick={() => {}}>
+                                                <DPDKInterfaceForm onSubmit={submitInterface} />
+                                            </Tabs.Item>
+                                        </Tabs>
+                                    )}
+                                </>
                             </Tabs.Item>
                             <Tabs.Item title="PCAP" onClick={() => {}}>
-                                <div>PCAP</div>
+                                <>
+                                    {loading && <Spinner>Loading...</Spinner>}
+                                    {!loading && interfaces.length === 0 && <div>No interfaces found</div>}
+                                    {!loading && interfaces.length > 0 && (
+                                        <Tabs>
+                                            {interfaces.map((interface_) => (
+                                                <Tabs.Item
+                                                    key={interface_.interface}
+                                                    title={interface_.interface}
+                                                    active={currentInterface?.interface === interface_.interface}
+                                                >
+                                                    <Interface_
+                                                        interface_={interface_}
+                                                        captureType={currentCaptureType}
+                                                        deleteInterface={() => handleDelete(interface_)}
+                                                    />
+                                                </Tabs.Item>
+                                            ))}
+                                            <Tabs.Item title="Add Interface" onClick={() => {}}>
+                                                <PCAPInterfaceForm onSubmit={submitInterface} />
+                                            </Tabs.Item>
+                                        </Tabs>
+                                    )}
+                                </>
                             </Tabs.Item>
                         </Tabs>
                     </div>

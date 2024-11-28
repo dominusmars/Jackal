@@ -1,7 +1,9 @@
 import React from "react";
-import { SuricataCaptureType, SuricataInterface } from "lib/suricata";
+import { SuricataCaptureType, SuricataDPDKInterface, SuricataInterface, SuricataPcapInterface } from "lib/suricata";
 import AfPacketInterface from "./interfaces/AfPacketInterface";
-import XDPInterface from "./forms/interfaces/XDPInterface";
+import XDPInterface from "./interfaces/XDPInterface";
+import DpdkInterface from "./interfaces/DPDKinterface";
+import PCAPInterface from "./interfaces/PCAPInterface";
 
 type Props = {
     interface_: SuricataInterface;
@@ -11,7 +13,7 @@ type Props = {
 
 function Interface_({ interface_, captureType, deleteInterface }: Props) {
     const [error, setError] = React.useState<string | null>(null);
-    const handleSubmit = async (e: SuricataInterface) => {
+    const handleSave = async (e: SuricataInterface) => {
         let response = await fetch(`/api/interfaces?capture=${captureType}`, {
             method: "UPDATE",
             headers: {
@@ -28,30 +30,25 @@ function Interface_({ interface_, captureType, deleteInterface }: Props) {
     };
 
     let interfaceComponent;
-    switch (captureType) {
+    switch (captureType as SuricataCaptureType) {
         case "af-packet":
+            interfaceComponent = <AfPacketInterface interface_={interface_} saveInterface={handleSave} deleteInterface={deleteInterface} />;
+            break;
+        case "pcap":
             interfaceComponent = (
-                <AfPacketInterface
-                    interface_={interface_}
-                    saveInterface={handleSubmit}
-                    deleteInterface={deleteInterface}
-                />
+                <PCAPInterface interface_={interface_ as SuricataPcapInterface} saveInterface={handleSave} deleteInterface={deleteInterface} />
             );
             break;
-        // case "pcap":
-        //     return <PcapInterface interface_={interface_} />;
         case "af-xdp":
+            interfaceComponent = <XDPInterface interface_={interface_} saveInterface={handleSave} deleteInterface={deleteInterface} />;
+            break;
+        case "dpdk":
             interfaceComponent = (
-                <XDPInterface
-                    interface_={interface_}
-                    saveInterface={handleSubmit}
-                    deleteInterface={deleteInterface}
-                />
+                <DpdkInterface interface_={interface_ as SuricataDPDKInterface} saveInterface={handleSave} deleteInterface={deleteInterface} />
             );
-        // case "dpdk":
-        //     return <DpdkInterface interface_={interface_} />;
+            break;
         default:
-            return null;
+            return <div>Invalid Capture Type</div>;
     }
     return (
         <div>

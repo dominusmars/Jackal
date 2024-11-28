@@ -15,8 +15,10 @@ function PageTitle({ title, stats, children }: Props) {
             <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">{title}</h1>
 
             <div className="flex gap-2">
-                {stats.map((info) => (
-                    <span className={info.className || "text-gray-800 dark:text-white"}>{info.info}</span>
+                {stats.map((info, i) => (
+                    <span className={info.className || "text-gray-800 dark:text-white"} key={i}>
+                        {info.info}
+                    </span>
                 ))}
             </div>
             {children}
