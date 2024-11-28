@@ -72,7 +72,8 @@
         "paths": {
             "@/*": ["src/*"],
             "@utils/*": ["src/utils/*"],
-            "@public/*": ["../../public/*"]
+            "@public/*": ["../../public/*"],
+            "@validators/*": ["src/requestValidators/*"],
         }
     },
     "include": ["./src", "./src/**/*.ts"],

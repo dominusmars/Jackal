@@ -35,3 +35,5 @@ coverage/
 *.jsx.map
 *.ts.map
 *.tsx.map
+
+*.code-workspace

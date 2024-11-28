@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRules } from "../Providers/RulesProvider";
-import RuleForm from "../components/RuleForm";
+import RuleForm from "../components/forms/RuleForm";
 import { Accordion } from "flowbite-react";
 import Rule from "../components/Rule";
 import PageTitle from "../components/PageTitle";
@@ -54,8 +54,12 @@ const Rules: React.FC = () => {
                                     <th className="px-4 py-2">Source IP</th>
                                     <th className="px-4 py-2">Source Port</th>
                                     <th className="px-4 py-2">Direction</th>
-                                    <th className="px-4 py-2">Destination IP</th>
-                                    <th className="px-4 py-2">Destination Port</th>
+                                    <th className="px-4 py-2">
+                                        Destination IP
+                                    </th>
+                                    <th className="px-4 py-2">
+                                        Destination Port
+                                    </th>
                                     <th className="px-4 py-2">Message</th>
                                 </tr>
                             </thead>
@@ -69,16 +73,23 @@ const Rules: React.FC = () => {
                     <div className="flex justify-center mt-4">
                         <nav>
                             <ul className="flex list-none">
-                                {Array.from({ length: Math.ceil(rules.length / rulesPerPage) }, (_, i) => (
-                                    <li key={i} className="mx-1">
-                                        <button
-                                            onClick={() => paginate(i + 1)}
-                                            className={`px-3 py-1 border rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    </li>
-                                ))}
+                                {Array.from(
+                                    {
+                                        length: Math.ceil(
+                                            rules.length / rulesPerPage
+                                        ),
+                                    },
+                                    (_, i) => (
+                                        <li key={i} className="mx-1">
+                                            <button
+                                                onClick={() => paginate(i + 1)}
+                                                className={`px-3 py-1 border rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-white text-blue-500"}`}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        </li>
+                                    )
+                                )}
                             </ul>
                         </nav>
                     </div>
