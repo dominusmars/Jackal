@@ -9,21 +9,23 @@ export const GET = [
         let stream = createReadStream(suricata.getEVELogPath(), { encoding: "utf8" });
         const rl = readline.createInterface({
             input: stream,
-            crlfDelay: Infinity,
+            // crlfDelay: Infinity,
         });
 
         const jsonArray: any[] = [];
 
         rl.on("line", (line) => {
             try {
-                const json = JSON.parse(line);
-                jsonArray.push(json);
+                if (line.startsWith("{") && line.endsWith("}")) {
+                    const json = line;
+                    jsonArray.push(json);
+                } else return;
             } catch (error) {
                 console.error("Error parsing JSON line:", error);
             }
         });
         rl.on("close", () => {
-            res.json(jsonArray);
+            res.send("[" + jsonArray.join(",") + "]");
         });
 
         stream.on("error", (error) => {
