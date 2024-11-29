@@ -17,6 +17,7 @@ import { getId } from "./id";
 
 const fromJackal = /from jackal/;
 const isDev = process.env.NODE_ENV === "development";
+const SURICATA_CONFIG = process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml";
 import path from "path";
 import { log } from "./debug";
 class Suricata {
@@ -34,7 +35,7 @@ class Suricata {
 
     // Warning: there might be an attack vector here if path is not sanitized, the paths can be changed to any path on the system using the frontend which can leak files info using the frontend
     getConfigPath(): string {
-        return isDev ? path.join(process.cwd(), "./demoData/suricata.yaml") : "/etc/suricata/suricata.yaml";
+        return isDev ? path.join(process.cwd(), "./demoData/suricata.yaml") : SURICATA_CONFIG;
     }
     getEVELogPath(): string {
         return isDev ? path.join(process.cwd(), "./demoData/eve.json") : path.join(this.serviceConfig["default-log-dir"], "eve.json");
