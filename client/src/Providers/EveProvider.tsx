@@ -235,7 +235,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return () => {
             eventSource.close();
         };
-    }, []);
+    }, [isPaused]);
 
     return (
         <EveContext.Provider
