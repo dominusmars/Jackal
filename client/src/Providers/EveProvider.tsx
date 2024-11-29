@@ -35,9 +35,11 @@ const EveContext = createContext<EveContextProps | undefined>(undefined);
 export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const logsRef = useRef<SuricataEveLog[]>([]);
     const [isPaused, setIsPaused] = useState(false);
+    const paused = useRef(false);
     const pausedLogs = useRef<SuricataEveLog[]>([]);
     const pauseLogs = (pause: boolean) => {
         setIsPaused(pause);
+        paused.current = pause;
         if (!pause) {
             logsRef.current = [...pausedLogs.current, ...logsRef.current];
             pausedLogs.current = [];
@@ -186,7 +188,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const handleEvent = (event: MessageEvent) => {
             const newEvent: SuricataEveLog = JSON.parse(event.data);
 
-            if (isPaused) {
+            if (paused.current) {
                 pausedLogs.current = [newEvent, ...pausedLogs.current];
                 return;
             } else if (pausedLogs.current.length > 0) {
