@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
 import { SuricataEveLog } from "lib";
 import debounce from "lodash.debounce";
+import { set } from "date-fns";
 
 interface EveContextProps {
-    EveLogs: SuricataEveLog[];
     eventTypes: string[];
     interfaces: string[];
     sourceIps: string[];
@@ -25,12 +25,12 @@ interface EveContextProps {
         inverseSearch?: string;
     }) => void;
     filteredLogs: SuricataEveLog[];
+    EveLogs: SuricataEveLog[];
 }
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
 
 export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [EveLogs, setEveLogs] = useState<SuricataEveLog[]>([]);
     const logsRef = useRef<SuricataEveLog[]>([]);
     const [filters, setFilters] = useState({
         eventTypes: new Set<string>(),
@@ -41,8 +41,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         destPorts: new Set<string>(),
         protocols: new Set<string>(),
     });
-
-    const [searchParam, setSearchParam] = useState<{
+    const searchRef = useRef<{
         eventType?: string;
         interface?: string;
         sourceIp?: string;
@@ -111,7 +110,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             },
             300
         ),
-        [logsRef, searchParam]
+        [logsRef.current, searchRef.current]
     );
     const setSearch = useCallback(
         (param: {
@@ -127,9 +126,8 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             search?: string;
             inverseSearch?: string;
         }) => {
-            let newParam = { ...searchParam, ...param };
-            setSearchParam((prev) => ({ ...prev, ...param }));
-            filterLogs(newParam);
+            searchRef.current = { ...searchRef.current, ...param };
+            filterLogs(searchRef.current);
         },
         [filterLogs]
     );
@@ -139,8 +137,6 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const response = await fetch("/api/eve");
             const logs = await response.json();
             logsRef.current = logs;
-            setEveLogs((prev) => [...prev, ...logs]);
-            setFilteredLogs((prev) => [...prev, ...logs]);
             const newEventTypes = new Set(filters.eventTypes);
             const newInterfaces = new Set(filters.interfaces);
             const newSourceIps = new Set(filters.sourceIps);
@@ -168,6 +164,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 destPorts: newDestPorts,
                 protocols: newProtocols,
             });
+            setSearch(searchRef.current);
         };
 
         getInitialLogs();
@@ -206,8 +203,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                     };
                 });
 
-                setEveLogs((prevLogs) => [newEvent, ...prevLogs]);
-                filterLogs(searchParam);
+                setSearch(searchRef.current);
             } catch (error) {
                 console.error("Error parsing log:", error);
             }
@@ -223,7 +219,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return (
         <EveContext.Provider
             value={{
-                EveLogs,
+                EveLogs: logsRef.current,
                 eventTypes: Array.from(filters.eventTypes),
                 interfaces: Array.from(filters.interfaces),
                 sourceIps: Array.from(filters.sourceIps),

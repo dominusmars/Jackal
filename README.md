@@ -47,3 +47,4 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 
 -   Fix new logs comming in causing filters to reset
 -   No way to stop logs from resetting state.
+-   When logs come in it keeps everything open
