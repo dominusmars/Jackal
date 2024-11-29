@@ -4,7 +4,7 @@ import { useEve } from "../Providers/EveProvider";
 import { VisEdge } from "vis-network/declarations/network/gephiParser";
 import { MultiSelect } from "./FilterSelect";
 import PageTitle from "./PageTitle";
-import { uuid } from "uuidv4";
+import { v4 } from "uuid";
 
 const NetworkMap = () => {
     const { EveLogs, sourceIps, destIps } = useEve();
@@ -42,7 +42,7 @@ const NetworkMap = () => {
                 nodesMap.set(dest_ip, { id: dest_ip, label: dest_ip });
             }
 
-            edges.push({ id: uuid(), from: src_ip, to: dest_ip, label: log.event_type, arrows: "to" });
+            edges.push({ id: v4(), from: src_ip, to: dest_ip, label: log.event_type, arrows: "to" });
         });
 
         const nodes = Array.from(nodesMap.values());
