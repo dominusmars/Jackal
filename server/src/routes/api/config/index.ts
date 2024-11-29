@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 
 export const GET = [
     async (req: Request, res: Response) => {
-        let config = await suricata.getSuricataConfig();
+        let config = suricata.getSuricataConfig();
         res.json(config);
     },
 ];

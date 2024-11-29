@@ -66,6 +66,21 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
         <>
             <label className="text-lg block text-gray-700 dark:text-white">{label}</label>
             <div className="flex gap-3 p-2 justify-center items-center">
+                <Select
+                    multiple
+                    value={selectedOptions}
+                    onChange={(e) => {
+                        const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+                        setSelectedOptions(selected);
+                    }}
+                    className="block max-w-xs mt-1 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                >
+                    {options.map((option, i) => (
+                        <option key={i} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </Select>
                 <TextInput
                     className="mt-2 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder={`Type ${label} separated by commas`}
@@ -86,21 +101,6 @@ const MultiSelect: React.FC<FilterSelectMultiProps> = ({ label, options, onChang
                     Select by Regex
                 </Button>
             </div>
-            <Select
-                multiple
-                value={selectedOptions}
-                onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, (option) => option.value);
-                    setSelectedOptions(selected);
-                }}
-                className="block w-full mt-1 p-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-                {options.map((option, i) => (
-                    <option key={i} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </Select>
         </>
     );
 };

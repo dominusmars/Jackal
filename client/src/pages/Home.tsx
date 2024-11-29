@@ -12,7 +12,7 @@ const Home: React.FC = () => {
 
     const [ascending, setAscending] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [logsPerPage, setLogsPerPage] = useState(50);
+    const [logsPerPage, setLogsPerPage] = useState(10);
 
     const memoizedFilteredLogs = useMemo(() => {
         const sortedLogs = [...filteredLogs].sort((a, b) => {

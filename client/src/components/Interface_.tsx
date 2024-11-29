@@ -15,7 +15,7 @@ function Interface_({ interface_, captureType, deleteInterface }: Props) {
     const [error, setError] = React.useState<string | null>(null);
     const handleSave = async (e: SuricataInterface) => {
         let response = await fetch(`/api/interfaces?capture=${captureType}`, {
-            method: "UPDATE",
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
             },

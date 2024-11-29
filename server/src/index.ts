@@ -7,7 +7,16 @@ const app = express();
 async function startServer() {
     app.use(morgan("combined"));
     app.use(express.json());
-    app.use("/", (await router()) as any);
+    app.use(
+        "/",
+        (await router({
+            routerOptions: {
+                strict: true,
+                caseSensitive: true,
+                mergeParams: true,
+            },
+        })) as any
+    );
     app.use("/public/", express.static("../public"));
     // Custom error handler
     app.use("*", (req: express.Request, res: express.Response) => {
