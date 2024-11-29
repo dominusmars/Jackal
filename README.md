@@ -2,7 +2,7 @@
 
 Jackal provides easy management of Suricata through a user-friendly web interface. Built with Node.js, it allows users to configure, monitor, and analyze network traffic efficiently. The platform offers real-time alerts, detailed logs, and customizable dashboards to enhance network security and streamline operations. Whether you are a network administrator or a security professional, Jackal simplifies the complexities of Suricata, making it accessible and effective for all users.
 
-## Reason for Existence
+## Reason
 
 Suricata is a powerful application with extensive capabilities, but it can be challenging to navigate through numerous log files. While ELK stacks, Wazuh, and Tulip are excellent tools that assist with this, they can be time-consuming to deploy and manage, especially during competitions. Jackal offers a user-friendly interface for Suricata, enabling easy setup and management. It is designed to be a straightforward yet effective interface, simplifying the complexities of Suricata. However, referring to the Suricata documentation remains essential for in-depth understanding and usage.
 
@@ -12,9 +12,18 @@ Make sure to have Suricata installed on the system you want to deploy this on. P
 
 ![front end picture](front_end.png)
 
-Compile the frontend into the public folder.
+## Install
 
-Compile and start the backend in the server folder.
+```sh
+cd client
+npm i
+npm run build
+cd ..
+cd server
+npm i
+npm run build
+npm run start
+```
 
 These will be automated in future.
 
@@ -30,6 +39,5 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 -   Implement a way to install automatically on systems
 -   Add user authentication and authorization
 -   Improve documentation
--   Implement a mobile-friendly interface
 -   Add tooltips to settings
 -   Create another backend using python? for easier deployments unless we create a easier way to get node installed quickly.

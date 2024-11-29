@@ -7,7 +7,8 @@
         "test": "jest --detectOpenHandles --forceExit --silent=false --runInBand --no-cache",
         "run:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
         "dev": "concurrently \"npm run watch\" \"npm run run:dev\"",
-        "run": "node dist/index.js",
+        "start": "node dist/index.js",
+        "bulid": "tsc && tsc-alias",
         "watch": "concurrently --kill-others \"tsc --watch\" \"tsc-alias --watch\""
     },
     "keywords": [
@@ -28,6 +29,8 @@
     "author": "Mohamad Khawam",
     "license": "ISC",
     "dependencies": {
+        "@types/color": "^4.2.0",
+        "colors": "^1.4.0",
         "express": "^4.21.1",
         "express-file-routing": "^3.0.3",
         "express-ws": "^5.0.2",
