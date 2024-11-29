@@ -41,3 +41,9 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 -   Improve documentation
 -   Add tooltips to settings
 -   Create another backend using python? for easier deployments unless we create a easier way to get node installed quickly.
+-   Error Handling :0
+
+## known issues
+
+-   Fix new logs comming in causing filters to reset
+-   No way to stop logs from resetting state.
