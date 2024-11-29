@@ -24,14 +24,26 @@ interface EveContextProps {
         search?: string;
         inverseSearch?: string;
     }) => void;
+    pauseLogs: (pause: boolean) => void;
     filteredLogs: SuricataEveLog[];
     EveLogs: SuricataEveLog[];
+    isPaused: boolean;
 }
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
 
 export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const logsRef = useRef<SuricataEveLog[]>([]);
+    const [isPaused, setIsPaused] = useState(false);
+    const pausedLogs = useRef<SuricataEveLog[]>([]);
+    const pauseLogs = (pause: boolean) => {
+        setIsPaused(pause);
+        if (!pause) {
+            logsRef.current = [...pausedLogs.current, ...logsRef.current];
+            pausedLogs.current = [];
+        }
+    };
+
     const [filters, setFilters] = useState({
         eventTypes: new Set<string>(),
         interfaces: new Set<string>(),
@@ -154,7 +166,6 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 if (log.dest_port !== undefined) newDestPorts.add(log.dest_port.toString());
                 if (log.proto) newProtocols.add(log.proto.trim());
             });
-
             setFilters({
                 eventTypes: newEventTypes,
                 interfaces: newInterfaces,
@@ -169,10 +180,20 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
         getInitialLogs();
     }, []);
+
     useEffect(() => {
         const eventSource = new EventSource("/api/eve/stream");
         const handleEvent = (event: MessageEvent) => {
             const newEvent: SuricataEveLog = JSON.parse(event.data);
+
+            if (isPaused) {
+                pausedLogs.current = [newEvent, ...pausedLogs.current];
+                return;
+            } else if (pausedLogs.current.length > 0) {
+                logsRef.current = [...pausedLogs.current, ...logsRef.current];
+                pausedLogs.current = [];
+            }
+
             logsRef.current = [newEvent, ...logsRef.current];
             try {
                 setFilters((prevFilters) => {
@@ -228,7 +249,8 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 destPorts: Array.from(filters.destPorts),
                 protocols: Array.from(filters.protocols),
                 setSearch,
-
+                pauseLogs,
+                isPaused,
                 filteredLogs,
             }}
         >

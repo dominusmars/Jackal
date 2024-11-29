@@ -8,7 +8,8 @@ import PageTitle from "../components/PageTitle";
 const Home: React.FC = () => {
     const MAX_LOG = 100000;
 
-    const { EveLogs, eventTypes, interfaces, sourceIps, sourcePorts, destIps, destPorts, protocols, setSearch, filteredLogs } = useEve();
+    const { EveLogs, eventTypes, interfaces, sourceIps, sourcePorts, destIps, destPorts, protocols, setSearch, filteredLogs, isPaused, pauseLogs } =
+        useEve();
 
     const [ascending, setAscending] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -110,10 +111,21 @@ const Home: React.FC = () => {
                             placeholder="End Time"
                         />
                     </div>
-
-                    <Button className="text-gray-800 dark:text-white" onClick={() => setAscending(!ascending)}>
-                        {ascending ? "Ascending" : "Descending"}
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            color={isPaused ? "green" : "red"}
+                            className={`text-gray-800 dark:text-white}`}
+                            onClick={() => {
+                                let pause = !isPaused;
+                                pauseLogs(pause);
+                            }}
+                        >
+                            {isPaused ? "unpause" : "pause"}
+                        </Button>
+                        <Button className="text-gray-800 dark:text-white" onClick={() => setAscending(!ascending)}>
+                            {ascending ? "Ascending" : "Descending"}
+                        </Button>
+                    </div>
                 </div>
                 <div className="flex gap-6 justify-center items-center mt-4">
                     <Button
