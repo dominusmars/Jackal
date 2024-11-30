@@ -39,3 +39,4 @@ coverage/
 *.code-workspace
 
 eve.json
+eve.json*

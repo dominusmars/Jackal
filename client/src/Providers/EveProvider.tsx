@@ -19,7 +19,6 @@ interface EveContextProps {
 }
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
-
 export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const logsRef = useRef<SuricataEveLog[]>([]);
     const [isPaused, setIsPaused] = useState(false);
@@ -159,6 +158,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
 
             logsRef.current = [newEvent, ...logsRef.current];
+
             try {
                 setFilters((prevFilters) => {
                     const newEventTypes = new Set(prevFilters.eventTypes);

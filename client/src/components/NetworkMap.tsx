@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { EdgeOptions, Network } from "vis-network";
+import { EdgeOptions, Network, Options } from "vis-network";
 import { useEve } from "../Providers/EveProvider";
 import { VisEdge } from "vis-network/declarations/network/gephiParser";
 import { MultiSelect } from "./FilterSelect";
@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 
 const NetworkMap = () => {
     const { EveLogs, sourceIps, destIps } = useEve();
+    const [CurrentEveLogs, setCurrentEveLogs] = useState(EveLogs);
     const networkRef = useRef(null);
     const [networkData, setNetworkData] = useState<{
         nodes: { id: string; label: string }[];
@@ -25,7 +26,7 @@ const NetworkMap = () => {
         const nodesMap = new Map();
         const edges: VisEdge[] = [];
 
-        EveLogs.forEach((log) => {
+        CurrentEveLogs.forEach((log) => {
             const { src_ip, dest_ip } = log;
             if (!src_ip || !dest_ip) {
                 return;
@@ -52,7 +53,7 @@ const NetworkMap = () => {
 
     useEffect(() => {
         if (networkRef.current) {
-            const options = {
+            const options: Options = {
                 nodes: {
                     shape: "dot",
                     size: 16,
@@ -60,11 +61,15 @@ const NetworkMap = () => {
                 edges: {
                     smooth: true,
                 },
+
                 physics: {
                     enabled: false,
                 },
                 layout: {
-                    improvedLayout: false, // Disable improved layout for better performance
+                    improvedLayout: true, // Disable improved layout for better performance
+                    hierarchical: {
+                        enabled: true,
+                    },
                 },
             };
 
