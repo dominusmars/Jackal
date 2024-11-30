@@ -11,7 +11,7 @@ interface EveContextProps {
     destIps: string[];
     destPorts: string[];
     protocols: string[];
-    setSearch: (param: SuricataEveSearch) => void;
+    setSearch: (param: SuricataEveSearch, queryDb: boolean) => void;
     pauseLogs: (pause: boolean) => void;
     filteredLogs: SuricataEveLog[];
     EveLogs: SuricataEveLog[];
@@ -59,19 +59,21 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const [filteredLogs, setFilteredLogs] = useState<SuricataEveLog[]>([]);
     const filterLogs = useCallback(
-        debounce(async (filters: SuricataEveSearch) => {
+        debounce(async (filters: SuricataEveSearch, dbQuery: boolean) => {
             let query = new URLSearchParams({ ...filters }).toString();
             const regex = filters.search && filters.search != "" ? new RegExp(filters.search, "i") : null;
             const regexInverse = filters.inverseSearch && filters.inverseSearch != "" ? new RegExp(filters.inverseSearch, "i") : null;
-            let response = await fetch("/api/eve/query?" + query, {
-                method: "GET",
-            });
-            if (!response.ok) {
-                console.error("Failed to fetch logs");
-                return;
+            if (dbQuery) {
+                let response = await fetch("/api/eve/query?" + query, {
+                    method: "GET",
+                });
+                if (!response.ok) {
+                    console.error("Failed to fetch logs");
+                    return;
+                }
+                let logs = await response.json();
+                logsRef.current = logs;
             }
-            let logs = await response.json();
-            logsRef.current = logs;
 
             setFilteredLogs(
                 logsRef.current.filter((log) => {
@@ -99,9 +101,9 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         [logsRef.current, searchRef.current]
     );
     const setSearch = useCallback(
-        (param: SuricataEveSearch) => {
+        (param: SuricataEveSearch, query: boolean) => {
             searchRef.current = { ...searchRef.current, ...param };
-            filterLogs(searchRef.current);
+            filterLogs(searchRef.current, query);
         },
         [filterLogs]
     );
@@ -137,7 +139,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 destPorts: newDestPorts,
                 protocols: newProtocols,
             });
-            setSearch(searchRef.current);
+            setSearch(searchRef.current, false);
         };
 
         getInitialLogs();
@@ -186,7 +188,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                     };
                 });
 
-                setSearch(searchRef.current);
+                setSearch(searchRef.current, false);
             } catch (error) {
                 console.error("Error parsing log:", error);
             }

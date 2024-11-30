@@ -20,7 +20,7 @@ class DataBase {
         const full_url = "mongodb://" + MONGO_URL;
         log("info", "Connecting to MongoDB at " + full_url);
         this.eveCollectionName = "eve";
-        this.dbName = "jackal";
+        this.dbName = isDev ? "jackal-dev" : "jackal";
         const client = new MongoClient(full_url, {});
         client.connect().then(() => {
             this.db = client.db(this.dbName);

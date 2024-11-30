@@ -33,19 +33,22 @@ const Home: React.FC = () => {
     }, [memoizedFilteredLogs, currentPage, logsPerPage]);
 
     useEffect(() => {
-        setSearch({
-            eventType: "",
-            interface: "",
-            sourceIp: "",
-            sourcePort: "",
-            destIp: "",
-            destPort: "",
-            protocol: "",
-            startTime: "",
-            endTime: "",
-            search: "",
-            inverseSearch: "",
-        });
+        setSearch(
+            {
+                eventType: "",
+                interface: "",
+                sourceIp: "",
+                sourcePort: "",
+                destIp: "",
+                destPort: "",
+                protocol: "",
+                startTime: "",
+                endTime: "",
+                search: "",
+                inverseSearch: "",
+            },
+            false
+        );
     }, []);
 
     const totalPages = Math.ceil(memoizedFilteredLogs.length / logsPerPage);
@@ -75,24 +78,24 @@ const Home: React.FC = () => {
                 />
 
                 <div className="flex justify-between items-center bg-gray-200 p-2 gap-1 flex-wrap">
-                    <FilterSelect label="Interfaces" options={interfaces} onChange={(value: string) => setSearch({ interface: value })} />
-                    <FilterSelect label="Event Type" options={eventTypes} onChange={(value: string) => setSearch({ eventType: value })} />
-                    <FilterSelect label="Protocol" options={protocols} onChange={(value: string) => setSearch({ protocol: value })} />
-                    <FilterSelect label="Source IP" options={sourceIps} onChange={(value: string) => setSearch({ sourceIp: value })} />
-                    <FilterSelect label="Source Port" options={sourcePorts} onChange={(value: string) => setSearch({ sourcePort: value })} />
-                    <FilterSelect label="Destination IP" options={destIps} onChange={(value: string) => setSearch({ destIp: value })} />
-                    <FilterSelect label="Destination Port" options={destPorts} onChange={(value: string) => setSearch({ destPort: value })} />
+                    <FilterSelect label="Interfaces" options={interfaces} onChange={(value: string) => setSearch({ interface: value }, true)} />
+                    <FilterSelect label="Event Type" options={eventTypes} onChange={(value: string) => setSearch({ eventType: value }, true)} />
+                    <FilterSelect label="Protocol" options={protocols} onChange={(value: string) => setSearch({ protocol: value }, true)} />
+                    <FilterSelect label="Source IP" options={sourceIps} onChange={(value: string) => setSearch({ sourceIp: value }, true)} />
+                    <FilterSelect label="Source Port" options={sourcePorts} onChange={(value: string) => setSearch({ sourcePort: value }, true)} />
+                    <FilterSelect label="Destination IP" options={destIps} onChange={(value: string) => setSearch({ destIp: value }, true)} />
+                    <FilterSelect label="Destination Port" options={destPorts} onChange={(value: string) => setSearch({ destPort: value }, true)} />
                     <div className="flex gap-3 p-2">
                         <TextInput
                             className="text-gray-800 dark:text-white"
                             type="search"
-                            onChange={(e) => setSearch({ search: e.target.value })}
+                            onChange={(e) => setSearch({ search: e.target.value }, true)}
                             placeholder="Search (Regex)"
                         />
                         <TextInput
                             className="text-gray-800 dark:text-white"
                             type="search"
-                            onChange={(e) => setSearch({ inverseSearch: e.target.value })}
+                            onChange={(e) => setSearch({ inverseSearch: e.target.value }, true)}
                             placeholder="Inverse Search (Regex)"
                         />
                     </div>
@@ -100,13 +103,13 @@ const Home: React.FC = () => {
                         <label className="text-gray-800 dark:text-white">Time Range</label>
                         <TextInput
                             className="text-gray-800 dark:text-white"
-                            onChange={(e) => setSearch({ startTime: e.target.value })}
+                            onChange={(e) => setSearch({ startTime: e.target.value }, true)}
                             type="datetime-local"
                             placeholder="Start Time"
                         />
                         <TextInput
                             className="text-gray-800 dark:text-white"
-                            onChange={(e) => setSearch({ endTime: e.target.value })}
+                            onChange={(e) => setSearch({ endTime: e.target.value }, true)}
                             type="datetime-local"
                             placeholder="End Time"
                         />
