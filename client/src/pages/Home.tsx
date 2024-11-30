@@ -105,12 +105,14 @@ const Home: React.FC = () => {
                             className="text-gray-800 dark:text-white"
                             onChange={(e) => setSearch({ startTime: e.target.value }, true)}
                             type="datetime-local"
+                            datatype="datetime-local"
                             placeholder="Start Time"
                         />
                         <TextInput
                             className="text-gray-800 dark:text-white"
                             onChange={(e) => setSearch({ endTime: e.target.value }, true)}
                             type="datetime-local"
+                            datatype="datetime-local"
                             placeholder="End Time"
                         />
                     </div>

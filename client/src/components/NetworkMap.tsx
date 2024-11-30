@@ -47,7 +47,6 @@ const NetworkMap = () => {
         });
 
         const nodes = Array.from(nodesMap.values());
-        console.log(nodes);
         setNetworkData({ nodes, edges });
     }, [EveLogs, search]);
 
