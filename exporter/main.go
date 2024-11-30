@@ -92,7 +92,6 @@ func main() {
 	fmt.Println("Collection: ", collection.Name())
 	lognumber := 0
 	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
 		line := scanner.Text()
 		var result map[string]interface{}
 		json.Unmarshal([]byte(line), &result)
