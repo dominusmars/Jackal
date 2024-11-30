@@ -116,17 +116,7 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		log.Fatalf("error: %v", err)
 	}
-
-	// // Get a handle for your collection
-
-	// // Insert a document
-	// doc := map[string]string{"name": "Alice", "city": "Wonderland"}
-	// insertResult, err := collection.InsertOne(context.TODO(), doc)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+	fmt.Println("Inserted ", lognumber, " documents")
 	defer client.Disconnect(context.Background())
 
 	fmt.Println("Connection to MongoDB closed.")
