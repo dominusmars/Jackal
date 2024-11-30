@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
-import { SuricataEveLog } from "lib";
+import { SuricataEveLog, SuricataEveSearch } from "lib";
 import debounce from "lodash.debounce";
 import { set } from "date-fns";
 
@@ -11,19 +11,7 @@ interface EveContextProps {
     destIps: string[];
     destPorts: string[];
     protocols: string[];
-    setSearch: (param: {
-        eventType?: string;
-        interface?: string;
-        sourceIp?: string;
-        sourcePort?: string;
-        destIp?: string;
-        destPort?: string;
-        protocol?: string;
-        startTime?: string;
-        endTime?: string;
-        search?: string;
-        inverseSearch?: string;
-    }) => void;
+    setSearch: (param: SuricataEveSearch) => void;
     pauseLogs: (pause: boolean) => void;
     filteredLogs: SuricataEveLog[];
     EveLogs: SuricataEveLog[];
@@ -55,19 +43,7 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         destPorts: new Set<string>(),
         protocols: new Set<string>(),
     });
-    const searchRef = useRef<{
-        eventType?: string;
-        interface?: string;
-        sourceIp?: string;
-        sourcePort?: string;
-        destIp?: string;
-        destPort?: string;
-        protocol?: string;
-        startTime?: string;
-        endTime?: string;
-        search?: string;
-        inverseSearch?: string;
-    }>({
+    const searchRef = useRef<SuricataEveSearch>({
         eventType: "",
         interface: "",
         sourceIp: "",
@@ -83,63 +59,47 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const [filteredLogs, setFilteredLogs] = useState<SuricataEveLog[]>([]);
     const filterLogs = useCallback(
-        debounce(
-            (filters: {
-                eventType?: string;
-                interface?: string;
-                sourceIp?: string;
-                sourcePort?: string;
-                destIp?: string;
-                destPort?: string;
-                protocol?: string;
-                startTime?: string;
-                endTime?: string;
-                search?: string;
-                inverseSearch?: string;
-            }) => {
-                const regex = filters.search && filters.search != "" ? new RegExp(filters.search, "i") : null;
-                const regexInverse = filters.inverseSearch && filters.inverseSearch != "" ? new RegExp(filters.inverseSearch, "i") : null;
-                setFilteredLogs(
-                    logsRef.current.filter((log) => {
-                        const logTime = new Date(log.timestamp).getTime();
-                        const startTime = filters.startTime ? new Date(filters.startTime).getTime() : null;
-                        const endTime = filters.endTime ? new Date(filters.endTime).getTime() : null;
-                        // might want to append text to log to stop needing to stringify every time
-                        let stringify = JSON.stringify(log);
-                        return (
-                            (!filters.eventType || log.event_type === filters.eventType) &&
-                            (!filters.interface || log.in_iface === filters.interface) &&
-                            (!filters.sourceIp || log.src_ip === filters.sourceIp) &&
-                            (!filters.sourcePort || (log.src_port && log.src_port === parseInt(filters.sourcePort))) &&
-                            (!filters.destIp || log.dest_ip === filters.destIp) &&
-                            (!filters.destPort || log.dest_port === parseInt(filters.destPort)) &&
-                            (!filters.protocol || log.proto === filters.protocol) &&
-                            (!startTime || logTime >= startTime) &&
-                            (!endTime || logTime <= endTime) &&
-                            (!regex || regex.test(stringify)) &&
-                            (!regexInverse || !regexInverse.test(stringify))
-                        );
-                    })
-                );
-            },
-            300
-        ),
+        debounce(async (filters: SuricataEveSearch) => {
+            let query = new URLSearchParams({ ...filters }).toString();
+            const regex = filters.search && filters.search != "" ? new RegExp(filters.search, "i") : null;
+            const regexInverse = filters.inverseSearch && filters.inverseSearch != "" ? new RegExp(filters.inverseSearch, "i") : null;
+            let response = await fetch("/api/eve/query?" + query, {
+                method: "GET",
+            });
+            if (!response.ok) {
+                console.error("Failed to fetch logs");
+                return;
+            }
+            let logs = await response.json();
+            logsRef.current = logs;
+
+            setFilteredLogs(
+                logsRef.current.filter((log) => {
+                    const logTime = new Date(log.timestamp).getTime();
+                    const startTime = filters.startTime ? new Date(filters.startTime).getTime() : null;
+                    const endTime = filters.endTime ? new Date(filters.endTime).getTime() : null;
+                    // might want to append text to log to stop needing to stringify every time
+                    let stringify = JSON.stringify(log);
+                    return (
+                        (!filters.eventType || log.event_type === filters.eventType) &&
+                        (!filters.interface || log.in_iface === filters.interface) &&
+                        (!filters.sourceIp || log.src_ip === filters.sourceIp) &&
+                        (!filters.sourcePort || (log.src_port && log.src_port === parseInt(filters.sourcePort))) &&
+                        (!filters.destIp || log.dest_ip === filters.destIp) &&
+                        (!filters.destPort || log.dest_port === parseInt(filters.destPort)) &&
+                        (!filters.protocol || log.proto === filters.protocol) &&
+                        (!startTime || logTime >= startTime) &&
+                        (!endTime || logTime <= endTime) &&
+                        (!regex || regex.test(stringify)) &&
+                        (!regexInverse || !regexInverse.test(stringify))
+                    );
+                })
+            );
+        }, 300),
         [logsRef.current, searchRef.current]
     );
     const setSearch = useCallback(
-        (param: {
-            eventType?: string;
-            interface?: string;
-            sourceIp?: string;
-            sourcePort?: string;
-            destIp?: string;
-            destPort?: string;
-            protocol?: string;
-            startTime?: string;
-            endTime?: string;
-            search?: string;
-            inverseSearch?: string;
-        }) => {
+        (param: SuricataEveSearch) => {
             searchRef.current = { ...searchRef.current, ...param };
             filterLogs(searchRef.current);
         },

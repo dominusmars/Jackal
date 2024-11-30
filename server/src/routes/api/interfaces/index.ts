@@ -54,49 +54,61 @@ const filterCaptureType = (req: Request, res: Response, next: NextFunction) => {
 
 export const GET = [
     filterCaptureType,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         const { capture } = req.query;
-
-        let interfaces = await suricata.getInterfaces(capture as SuricataCaptureType);
-        res.json(interfaces);
+        try {
+            let interfaces = await suricata.getInterfaces(capture as SuricataCaptureType);
+            res.json(interfaces);
+        } catch (error) {
+            next(error);
+        }
     },
 ];
 export const POST = [
     filterCaptureType,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         const { capture } = req.query;
+        try {
+            const networkInterface: SuricataInterface = req.body;
 
-        const networkInterface: SuricataInterface = req.body;
-
-        let addedInterface = await suricata.addInterface(networkInterface, capture as SuricataCaptureType);
-        // Add interface to suricata
-        res.json(addedInterface);
+            let addedInterface = await suricata.addInterface(networkInterface, capture as SuricataCaptureType);
+            // Add interface to suricata
+            res.json(addedInterface);
+        } catch (error) {
+            next(error);
+        }
     },
 ];
 export const PATCH = [
     filterCaptureType,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         const { capture } = req.query;
+        try {
+            const networkInterface: SuricataInterface = req.body;
 
-        const networkInterface: SuricataInterface = req.body;
+            await suricata.updateInterface(networkInterface, capture as SuricataCaptureType);
+            // Update interface in suricata
 
-        await suricata.updateInterface(networkInterface, capture as SuricataCaptureType);
-        // Update interface in suricata
-
-        res.send("Interface Updated");
+            res.send("Interface Updated");
+        } catch (error) {
+            next(error);
+        }
     },
 ];
 
 export const DELETE = [
     filterCaptureType,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         const { capture } = req.query;
+        try {
+            const networkInterface: SuricataInterface = req.body;
 
-        const networkInterface: SuricataInterface = req.body;
+            await suricata.removeInterface(networkInterface, capture as SuricataCaptureType);
+            // Remove interface from suricata
 
-        await suricata.removeInterface(networkInterface, capture as SuricataCaptureType);
-        // Remove interface from suricata
-
-        res.send("Interface Removed");
+            res.send("Interface Removed");
+        } catch (error) {
+            next(error);
+        }
     },
 ];

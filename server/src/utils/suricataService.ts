@@ -8,21 +8,29 @@ import {
     SuricataAFInterface,
     SuricataPcapInterface,
     SuricataXDPInterface,
+    SuricataEveLog,
 } from "lib";
 import si from "systeminformation";
 import fs from "fs";
 import yaml from "yaml";
 import { makeSuricataRuleString, parseSuricataRule } from "@utils/suricataUtils";
 import { getId } from "./id";
+import path from "path";
+import { log } from "./debug";
+import { EventEmitter } from "events";
+import tail from "tail";
 
 const fromJackal = /from jackal/;
 const isDev = process.env.NODE_ENV === "development";
 const SURICATA_CONFIG = process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml";
-import path from "path";
-import { log } from "./debug";
-class Suricata {
+
+class Suricata extends EventEmitter<{
+    "eve-updated": string[];
+}> {
     serviceConfig: SuricataConfig;
+    eveTail: tail.Tail | undefined;
     constructor() {
+        super();
         this.serviceConfig = this.getSuricataConfig();
         log("info", "Suricata Service Initialized");
         log("info", `Suricata Config Path: ${this.getConfigPath()}`);
@@ -31,6 +39,21 @@ class Suricata {
         log("info", `Fast Log Path: ${this.getFastPath()}`);
         log("info", `Service Log Path: ${this.getServicePath()}`);
         log("info", `Rules Path: ${this.getRulesPath()}`);
+        this.listenForEve();
+    }
+
+    private listenForEve() {
+        log("info", "Listening for EVE Logs");
+        const eveTail = new tail.Tail(this.getEVELogPath());
+        eveTail.on("line", (line: string) => {
+            this.emit("eve-updated", line.trim());
+        });
+        this.eveTail = eveTail;
+    }
+    stopListeningForEve() {
+        if (this.eveTail) {
+            this.eveTail.unwatch();
+        }
     }
 
     // Warning: there might be an attack vector here if path is not sanitized, the paths can be changed to any path on the system using the frontend which can leak files info using the frontend
@@ -38,7 +61,8 @@ class Suricata {
         return isDev ? path.join(process.cwd(), "./demoData/suricata.yaml") : SURICATA_CONFIG;
     }
     getEVELogPath(): string {
-        return isDev ? path.join(process.cwd(), "./demoData/eve.json") : path.join(this.serviceConfig["default-log-dir"], "eve.json");
+        const SURICATA_EVE = process.env.SURICATA_EVE || path.join(this.serviceConfig["default-log-dir"], "eve.json");
+        return isDev ? path.join(process.cwd(), "./demoData/eve.json") : SURICATA_EVE;
     }
     getStatsPath(): string {
         return isDev ? path.join(process.cwd(), "./demoData/stats.log") : path.join(this.serviceConfig["default-log-dir"], "stats.log");
@@ -87,9 +111,14 @@ class Suricata {
         return serviceData[0];
     }
     getSuricataConfig(): SuricataConfig {
-        let configString = fs.readFileSync(this.getConfigPath(), "utf-8");
-        let config = yaml.parse(configString);
-        return config;
+        try {
+            let configString = fs.readFileSync(this.getConfigPath(), "utf-8");
+            let config = yaml.parse(configString);
+            return config;
+        } catch (error: any) {
+            log("error", "Error reading Suricata Config", error);
+            process.exit(1);
+        }
     }
     async getInterfaces(captureType: SuricataCaptureType): Promise<SuricataInterface[]> {
         let config = this.getSuricataConfig();

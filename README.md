@@ -42,8 +42,8 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 -   Add tooltips to settings
 -   Create another backend using python? for easier deployments unless we create a easier way to get node installed quickly.
 -   Error Handling :0
+-   Implement a Db, when eve file heap limit is hit.
 
 ## known issues
 
--   No way to stop logs from resetting state.
--   When logs come in it keeps everything open
+-   When log is opened and new log comes it, the html element stays open

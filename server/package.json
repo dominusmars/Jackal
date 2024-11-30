@@ -38,7 +38,9 @@
         "joi": "^17.13.3",
         "just-types": "^2.0.0-alpha.3",
         "lib": "file:../lib",
+        "mongodb": "^6.11.0",
         "morgan": "^1.10.0",
+        "sha256": "^0.2.0",
         "systeminformation": "^5.23.5",
         "tail": "^2.2.6",
         "yaml": "^2.6.1"
@@ -50,6 +52,7 @@
         "@types/morgan": "^1.9.9",
         "@types/react": "^18.3.12",
         "@types/react-dom": "^18.3.1",
+        "@types/sha256": "^0.2.2",
         "@types/tail": "^2.2.3",
         "@webpack-cli/generators": "^3.0.7",
         "autoprefixer": "^10.4.20",

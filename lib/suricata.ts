@@ -299,8 +299,32 @@ export interface ExtendedSuricataRule extends SuricataRule {
     full_text: string;
     id: string;
 }
+export interface SuricataEveSearch {
+    eventType?: string;
+    interface?: string;
+    sourceIp?: string;
+    sourcePort?: string;
+    destIp?: string;
+    destPort?: string;
+    protocol?: string;
+    startTime?: string;
+    endTime?: string;
+    search?: string;
+    inverseSearch?: string;
+}
+export interface SuricataEveFilter {
+    eventType?: string[];
+    interface?: string[];
+    sourceIp?: string[];
+    sourcePort?: string[];
+    destIp?: string[];
+    destPort?: string[];
+    protocol?: string[];
+    startTime?: string;
+    endTime?: string;
+}
 export interface SuricataEveLog {
-    timestamp: string;
+    timestamp: string | Date;
     event_type: string;
     src_ip: string;
     src_port?: number;
@@ -308,7 +332,7 @@ export interface SuricataEveLog {
     dest_port?: number;
     proto?: string;
     alert?: {
-        action: string;
+        action: "allowed" | "drop" | "reject";
         gid: number;
         signature_id: number;
         rev: number;
@@ -351,4 +375,7 @@ export interface SuricataEveLog {
     icmp_code?: number;
     event_severity?: number;
     proto_txt?: string;
+    // Added by Jackal to prevent duplicate logs
+    full_text: string;
+    hash: string;
 }

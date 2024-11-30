@@ -8,7 +8,7 @@ function getTimeStamp(): string {
 
 type LogLevel = "info" | "warning" | "error" | "debug" | "trace";
 
-function log(level: LogLevel, message: string): void {
+function log(level: LogLevel, message: string, ...args: string[]): void {
     const timeStamp = getTimeStamp();
     let logFunction;
     let colorFunction;
@@ -39,7 +39,7 @@ function log(level: LogLevel, message: string): void {
             colorFunction = colors.white;
     }
     if (PLAIN_TEXT) {
-        logFunction(`[${level.toUpperCase()}] [${timeStamp}]: ${message}`);
+        logFunction(`[${level.toUpperCase()}] [${timeStamp}]: ${message}`, args);
         return;
     }
     logFunction(colorFunction(`[${level.toUpperCase()}] [${timeStamp}]: ${message}`));

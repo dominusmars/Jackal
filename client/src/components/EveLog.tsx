@@ -4,19 +4,38 @@ import React from "react";
 import { SuricataEveLog } from "lib";
 import { format } from "date-fns";
 import { useState } from "react";
-
+import classnames from "classnames";
 export function EveLog({ log }: { log: SuricataEveLog }) {
     const [showDetails, setShowDetails] = useState(false);
 
     if (!log) {
         return null;
     }
+    function getRowColor() {
+        if (!log.alert) {
+            return "";
+        }
+        if (log.alert.action === "allowed") {
+            return "bg-green-200 dark:bg-green-700";
+        }
+        if (log.alert.action === "drop") {
+            return "bg-red-200 dark:bg-red-700";
+        }
+        if (log.alert.action === "reject") {
+            return "bg-yellow-200 dark:bg-yellow-700";
+        }
+        return "";
+    }
 
     return (
         <>
             <tr
                 onClick={() => setShowDetails(!showDetails)}
-                className="cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 ease-in-out transition-all"
+                className={classnames(
+                    "cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 ease-in-out transition-all",
+                    getRowColor(),
+                    showDetails ? " bg-gray-400 dark:bg-gray-700" : ""
+                )}
             >
                 <td className="border px-4 py-2">{format(new Date(log.timestamp), "MMMM dd, yyyy, hh:mm:ss a")}</td>
                 <td className="border px-4 py-2">{log.in_iface}</td>
@@ -29,7 +48,7 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
             </tr>
             {showDetails && (
                 <tr>
-                    <td colSpan={8} className="border px-4 py-2">
+                    <td colSpan={8} className="border px-4 py-2 max-w-screen-lg">
                         <div className="text-gray-700 dark:text-gray-400">
                             <p>Source IP: {log.src_ip}</p>
                             {log.src_port && <p>Source Port: {log.src_port}</p>}
@@ -69,7 +88,9 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                             )}
                         </div>
                         <h3 className="">Raw Log:</h3>
-                        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-x-auto">{JSON.stringify(log, null, 4)}</pre>
+                        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-balance">
+                            {JSON.stringify({ ...log, full_text: undefined }, null, 4)}
+                        </pre>
                     </td>
                 </tr>
             )}

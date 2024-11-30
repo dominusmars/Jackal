@@ -13,7 +13,7 @@ const Home: React.FC = () => {
 
     const [ascending, setAscending] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [logsPerPage, setLogsPerPage] = useState(10);
+    const [logsPerPage, setLogsPerPage] = useState(25);
 
     const memoizedFilteredLogs = useMemo(() => {
         const sortedLogs = [...filteredLogs].sort((a, b) => {
@@ -149,7 +149,7 @@ const Home: React.FC = () => {
                     <div className="items-end">
                         <SelectFrom
                             label="Logs Per Page"
-                            options={["10", "50", "100", "500", "1000", "5000", "10000"]}
+                            options={["25", "50", "100", "500", "1000", "5000", "10000"]}
                             onChange={(value: string) => setLogsPerPage(parseInt(value))}
                         />
                     </div>
