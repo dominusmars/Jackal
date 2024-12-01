@@ -17,10 +17,12 @@ class DataBase {
     eveCollectionName: string;
     dbName: string;
     constructor() {
+        // cant decide if this should start with mongodb:// or not
         const full_url = "mongodb://" + MONGO_URL;
         log("info", "Connecting to MongoDB at " + full_url);
         this.eveCollectionName = "eve";
         this.dbName = isDev ? "jackal-dev" : "jackal";
+
         const client = new MongoClient(full_url, {});
         client.connect().then(() => {
             this.db = client.db(this.dbName);
@@ -32,12 +34,14 @@ class DataBase {
             this.init();
             this.ready = true;
         });
+
         this.client = client;
         this.db = client.db(this.dbName);
+
         this.logCount = 0;
         this.ready = false;
     }
-
+    // Initializes the database by checking the size of the log file and then processing it
     init() {
         let stat = fs.statSync(suricata.getEVELogPath());
         let fileSize = stat.size;
@@ -49,6 +53,7 @@ class DataBase {
         }
         this.processLogsToDB();
     }
+    // Waits for the database to be ready, Useful for testing
     awaitReady() {
         return new Promise<void>((resolve) => {
             const checkReady = () => {
@@ -62,6 +67,8 @@ class DataBase {
         });
     }
 
+    // Processes logs from the eve.json file and adds them to the database
+    // This function will not be called if the log file is too large
     processLogsToDB() {
         let stream = fs.createReadStream(suricata.getEVELogPath());
         let rl = readline.createInterface({
@@ -99,10 +106,13 @@ class DataBase {
             await this.addLogToDB(line);
         }
     }
+    // Adds a log to the database
     private async addLogToDB(newLog: string) {
         try {
             const logs = JSON.parse(newLog) as SuricataEveLog;
             const hash = sha256(newLog);
+            // Check if the log already exists in the database, uses the hash of the json,
+            // hash is made from the log inside suricata eve.json not the one in the database
             const existingLog = await this.db.collection(this.eveCollectionName).findOne({ hash: hash });
             if (existingLog) {
                 return;
@@ -119,7 +129,7 @@ class DataBase {
     getLatestLogs() {
         return this.db.collection(this.eveCollectionName).find().sort({ timestamp: -1 }).limit(MAX_LOGS).toArray();
     }
-
+    // returns the keys of logs in the database to make them easier to search through
     async getFilters() {
         const filter = {} as SuricataEveFilter;
 
@@ -164,6 +174,7 @@ class DataBase {
         return filter;
     }
 
+    // Db search for logs based on filters
     async searchLogs(filters: SuricataEveSearch) {
         const query: Filter<SuricataEveLog> = {};
         if (filters.startTime || filters.endTime) {

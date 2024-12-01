@@ -8,6 +8,8 @@ function getTimeStamp(): string {
 
 type LogLevel = "info" | "warning" | "error" | "debug" | "trace";
 
+// Log function that logs to console
+// This is the most important function in the whole of the project
 function log(level: LogLevel, message: string, ...args: string[]): void {
     const timeStamp = getTimeStamp();
     let logFunction;

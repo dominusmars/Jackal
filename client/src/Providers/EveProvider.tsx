@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
 import { SuricataEveLog, SuricataEveSearch } from "lib";
 import debounce from "lodash.debounce";
-import { set } from "date-fns";
 
 interface EveContextProps {
     eventTypes: string[];

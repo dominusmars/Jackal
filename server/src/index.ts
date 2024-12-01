@@ -2,7 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import createRouter, { router } from "express-file-routing";
 import morgan from "morgan";
 import { log } from "./utils/debug";
-
+import { config } from "dotenv";
+config();
 const app = express();
 
 const isDev = process.env.NODE_ENV === "development";
@@ -19,9 +20,6 @@ function checkEnv() {
     }
     if (!process.env.MAX_LOGS) {
         log("warning", "MAX_LOGS not set, using default");
-    }
-    if (!process.env.NODE_ENV) {
-        log("warning", "NODE_ENV not set, using default");
     }
     if (isDev) {
         log("info", "Running in development mode");
@@ -42,10 +40,11 @@ async function startServer() {
         })) as any
     );
     app.use("/public/", express.static("../public"));
-    // Custom error handler
+
     app.use("*", (req: express.Request, res: express.Response) => {
         res.sendFile("index.html", { root: "../public" });
     });
+
     app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
         let message = isDev ? err.message : "Internal Server Error";
         log("error", err.message);

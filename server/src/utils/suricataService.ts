@@ -77,19 +77,24 @@ class Suricata extends EventEmitter<{
         return isDev ? path.join(process.cwd(), "./demoData/suricata.rules") : path.join(this.serviceConfig["default-rule-path"], "suricata.rules");
     }
 
+    // addes a rule to the suricata.rules file
     async addRule(rule: SuricataRule) {
         let strRule = makeSuricataRuleString(rule);
+        // id maded from the rule string
         let id = getId(strRule);
+
         fs.appendFileSync(this.getRulesPath(), strRule + "\n");
         log("info", `Rule Added: ${strRule}`);
         return { full_text: strRule, id, ...parseSuricataRule(strRule) };
     }
+    // removes a rule from the suricata.rules file using a regex match
     async removeRule(rule: SuricataRule) {
         let rulesStr = fs.readFileSync(this.getRulesPath(), "utf-8");
         let rules = rulesStr.split(/\r\n|\n/gm).filter((r) => r.trim() !== makeSuricataRuleString(rule));
         log("info", `Rule Removed: ${makeSuricataRuleString(rule)}`);
         fs.writeFileSync(this.getRulesPath(), rules.join("\n"));
     }
+    // gets all the rules from the suricata.rules file
     async getRules(): Promise<ExtendedSuricataRule[]> {
         let rulesString = fs.readFileSync(this.getRulesPath(), "utf-8");
         let rules = rulesString.split(/\r\n|\n/gm);
@@ -110,6 +115,7 @@ class Suricata extends EventEmitter<{
         const serviceData = await si.services("suricata");
         return serviceData[0];
     }
+
     getSuricataConfig(): SuricataConfig {
         try {
             let configString = fs.readFileSync(this.getConfigPath(), "utf-8");
@@ -120,6 +126,11 @@ class Suricata extends EventEmitter<{
             process.exit(1);
         }
     }
+    /**
+     * Gets the interfaces from the suricata config
+     *
+     *  Interfaces are filtered based on the SuricataCaptureType in Request. Do not call this function without validating the capture type corisponding to the interface
+     */
     async getInterfaces(captureType: SuricataCaptureType): Promise<SuricataInterface[]> {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk") return config[captureType].interfaces;
@@ -148,6 +159,11 @@ class Suricata extends EventEmitter<{
             }) as SuricataAFInterface[] & SuricataXDPInterface[] & SuricataPcapInterface[];
         this.writeSuricataConfig(config);
     }
+    /**
+     *  adds the interface from the suricata config
+     *
+     *  Interfaces are filtered based on the SuricataCaptureType in Request. Do not call this function without validating the capture type corisponding to the interface
+     */
     async addInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk") {
@@ -155,6 +171,11 @@ class Suricata extends EventEmitter<{
         } else config[captureType].push(networkInterface as any);
         this.writeSuricataConfig(config);
     }
+    /**
+     *  remove the interface from the suricata config
+     *
+     *  Interfaces are filtered based on the SuricataCaptureType in Request. Do not call this function without validating the capture type corisponding to the interface
+     */
     async removeInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk")
