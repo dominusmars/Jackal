@@ -7,6 +7,7 @@
         "test": "jest --detectOpenHandles --forceExit --silent=false --runInBand --no-cache",
         "run:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
         "dev": "concurrently \"npm run watch\" \"npm run run:dev\"",
+        "dev:inspect": "concurrently \"npm run watch\" \"cross-env NODE_ENV=development nodemon --inspect=\"9229\" dist/index.js\"",
         "start": "node dist/index.js",
         "build": "tsc && tsc-alias",
         "watch": "concurrently --kill-others \"tsc --watch\" \"tsc-alias --watch\""

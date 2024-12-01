@@ -1,5 +1,5 @@
 import { SuricataEveFilter, SuricataEveLog, SuricataEveSearch } from "lib";
-import mongodb, { Filter, MongoClient } from "mongodb";
+import mongodb, { Filter, InsertOneResult, MongoClient } from "mongodb";
 import suricata from "./suricataService";
 import fs from "fs";
 import readline from "readline";
@@ -9,6 +9,38 @@ import sha256 from "sha256";
 const MONGO_URL = process.env.MONGO_URI || "localhost:27017";
 const MAX_LOGS = process.env.MAX_LOGS ? parseInt(process.env.MAX_LOGS) : false || 10000;
 const isDev = process.env.NODE_ENV === "development";
+class ExportEveQueue {
+    queue: SuricataEveLog[];
+    interval: number;
+    maxLength: number;
+    maxInterval: number;
+    db: mongodb.Db;
+    collectionName: string;
+    constructor(db: mongodb.Db, collectionName: string) {
+        this.queue = [];
+        this.interval = 0;
+        setInterval(() => {
+            if (this.queue.length == 0) return;
+            if (this.queue.length > this.maxLength || this.interval > this.maxInterval) {
+                this.exportQueue();
+            }
+            this.interval++;
+        }, 100);
+        this.maxLength = 100;
+        this.maxInterval = 10;
+        this.db = db;
+        this.collectionName = collectionName;
+    }
+
+    enqueue(log: SuricataEveLog) {
+        this.queue.push(log);
+    }
+
+    async exportQueue() {
+        await this.db.collection(this.collectionName).insertMany(this.queue);
+    }
+}
+
 class DataBase {
     db: mongodb.Db;
     logCount: number;
@@ -16,6 +48,8 @@ class DataBase {
     ready: boolean;
     eveCollectionName: string;
     dbName: string;
+    logProcessQueue: Promise<InsertOneResult<Document>>[];
+    maxProcessQueue: number;
     constructor() {
         // cant decide if this should start with mongodb:// or not
         const full_url = "mongodb://" + MONGO_URL;
@@ -40,6 +74,8 @@ class DataBase {
 
         this.logCount = 0;
         this.ready = false;
+        this.logProcessQueue = [];
+        this.maxProcessQueue = 100;
     }
     // Initializes the database by checking the size of the log file and then processing it
     init() {
@@ -120,8 +156,12 @@ class DataBase {
             logs.hash = hash;
             logs.timestamp = new Date(logs.timestamp);
             logs.full_text = newLog;
-            await this.db.collection(this.eveCollectionName).insertOne(logs);
-            log("info", "New log added to database");
+            if (this.logProcessQueue.length > this.maxProcessQueue) {
+                await Promise.all(this.logProcessQueue);
+                this.logProcessQueue = [];
+                log("info", "Processed " + this.logCount + " logs");
+            }
+            this.logProcessQueue.push(this.db.collection(this.eveCollectionName).insertOne(logs));
         } catch (error) {
             log("error", "Error parsing JSON line: " + error);
         }

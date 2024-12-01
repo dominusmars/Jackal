@@ -40,3 +40,4 @@ coverage/
 
 eve.json
 eve.json*
+server/demoData/*

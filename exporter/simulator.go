@@ -1,0 +1,77 @@
+package main
+
+import (
+	"fmt"
+	"time"
+	"log"
+	"math/rand"
+	"os"
+)
+
+func getIps(number int) []string {
+	ips := make([]string, number)
+	for i := 0; i < number; i++ {
+		ips[i] = getRandomIP()
+	}
+	return ips
+}
+func getPorts(number int) []int {
+	ports := make([]int, number)
+	for i := 0; i < number; i++ {
+		ports[i] = getRandomPort()
+	}
+	return ports
+}
+
+
+
+func getRandomIP() string {
+	return fmt.Sprintf("%d.%d.%d.%d", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
+}
+
+func getRandomPort() int {
+	return rand.Intn(65536)
+}
+
+
+
+
+func main(){
+
+	SURICATA_EVE := os.Getenv("SURICATA_EVE")
+	if SURICATA_EVE == "" {
+		log.Fatal("SURICATA_EVE is not set")
+	}
+	log.Default().Print("SURICATA_EVE is set: using " + SURICATA_EVE)
+
+	numberOfComputers := 10
+
+	ips := getIps(numberOfComputers)
+	ports := getPorts(numberOfComputers)
+
+	file, err := os.OpenFile(SURICATA_EVE, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatalf("Failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	for {
+		source_ip := ips[rand.Intn(numberOfComputers)]
+		source_port := ports[rand.Intn(numberOfComputers)]
+		dest_ip := ips[rand.Intn(numberOfComputers)]
+		dest_port := ports[rand.Intn(numberOfComputers)]
+		if source_ip == dest_ip {
+			continue
+		}
+		flow_id := rand.Intn(1000000000)
+
+		logEntry := fmt.Sprintf(`{"timestamp": "%s", "flow_id": %d, "in_iface": "eth1", "event_type": "dns", "src_ip": "%s", "src_port": %d, "dest_ip": "%s", "dest_port": %d, "proto": "UDP", "dns": {"type": "query", "id": 21642, "rrname": "charon.alien.moon.mine", "rrtype": "A", "tx_id": 0, "opcode": 0}}`, time.Now().Format(time.RFC3339), flow_id, source_ip, source_port, dest_ip, dest_port)
+
+		if _, err := file.WriteString(logEntry + "\n"); err != nil {
+			log.Fatalf("Failed to write to file: %v", err)
+		}
+		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+		log.Default().Print("Log entry written")
+	}
+
+}
