@@ -91,6 +91,7 @@ func main() {
 	fmt.Println("DB: ", dbName)
 	fmt.Println("Collection: ", collection.Name())
 	lognumber := 0
+	// Read and insert each line
 	for scanner.Scan() {
 		line := scanner.Text()
 		var result map[string]interface{}

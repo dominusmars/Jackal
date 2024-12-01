@@ -120,14 +120,19 @@ class DataBase {
             logs.hash = hash;
             logs.timestamp = new Date(logs.timestamp);
             logs.full_text = newLog;
-            this.db.collection(this.eveCollectionName).insertOne(logs);
+            await this.db.collection(this.eveCollectionName).insertOne(logs);
             log("info", "New log added to database");
         } catch (error) {
             log("error", "Error parsing JSON line: " + error);
         }
     }
     getLatestLogs() {
-        return this.db.collection(this.eveCollectionName).find().sort({ timestamp: -1 }).limit(MAX_LOGS).toArray();
+        return this.db
+            .collection(this.eveCollectionName)
+            .find({}, { projection: { full_text: 0 } })
+            .sort({ timestamp: -1 })
+            .limit(MAX_LOGS)
+            .toArray();
     }
     // returns the keys of logs in the database to make them easier to search through
     async getFilters() {

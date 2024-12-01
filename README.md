@@ -47,3 +47,4 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 ## known issues
 
 -   When log is opened and new log comes it, the html element stays open
+-   Memory leak after server is on for a long time. (Assuming it has something to do with the suricata.on('eve-update'), causing issues when called to many times in a row)

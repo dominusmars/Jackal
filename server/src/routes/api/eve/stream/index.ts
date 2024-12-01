@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import tail from "tail";
 import suricata from "../../../../utils/suricataService";
 import { log } from "@/utils/debug";
 
@@ -24,11 +23,5 @@ export const GET = [
             }
         };
         suricata.on("eve-updated", sendLine);
-        // try {
-        //     const eveTail = new tail.Tail(suricata.getEVELogPath());
-        //     eveTail.on("line", sendLine);
-        // } catch (error) {
-        //     next(error);
-        // }
     },
 ];
