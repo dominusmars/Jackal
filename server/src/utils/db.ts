@@ -166,23 +166,15 @@ class DataBase {
 
     async searchLogs(filters: SuricataEveSearch) {
         const query: Filter<SuricataEveLog> = {};
-        if (filters.startTime) {
-            query.timestamp = {
-                $gte: new Date(filters.startTime),
-            };
+        if (filters.startTime || filters.endTime) {
+            query.timestamp = {};
+            if (filters.startTime) {
+                query.timestamp.$gte = new Date(filters.startTime);
+            }
+            if (filters.endTime) {
+                query.timestamp.$lte = new Date(filters.endTime);
+            }
         }
-        if (filters.endTime) {
-            query.timestamp = {
-                $lte: new Date(filters.endTime),
-            };
-        }
-        if (filters.startTime && filters.endTime) {
-            query.timestamp = {
-                $gte: new Date(filters.startTime),
-                $lte: new Date(filters.endTime),
-            };
-        }
-        console.log(query.timestamp);
         if (filters.sourceIp) {
             query.src_ip = filters.sourceIp;
         }
