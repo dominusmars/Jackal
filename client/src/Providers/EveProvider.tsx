@@ -20,6 +20,7 @@ interface EveContextProps {
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
 export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const MAX_LOGS = 10000;
     const logsRef = useRef<SuricataEveLog[]>([]);
     const [isPaused, setIsPaused] = useState(false);
     const paused = useRef(false);
@@ -158,6 +159,8 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
 
             logsRef.current = [newEvent, ...logsRef.current];
+
+            logsRef.current = logsRef.current.slice(0, MAX_LOGS);
 
             try {
                 setFilters((prevFilters) => {

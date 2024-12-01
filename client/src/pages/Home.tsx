@@ -6,8 +6,6 @@ import { FilterSelect, SelectFrom } from "../components/FilterSelect";
 import PageTitle from "../components/PageTitle";
 
 const Home: React.FC = () => {
-    const MAX_LOG = 100000;
-
     const { EveLogs, eventTypes, interfaces, sourceIps, sourcePorts, destIps, destPorts, protocols, setSearch, filteredLogs, isPaused, pauseLogs } =
         useEve();
 
@@ -23,7 +21,7 @@ const Home: React.FC = () => {
                 return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
             }
         });
-        return sortedLogs.slice(0, MAX_LOG);
+        return sortedLogs;
     }, [filteredLogs, ascending]);
 
     const paginatedLogs = useMemo(() => {
