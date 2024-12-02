@@ -44,7 +44,10 @@ class Suricata extends EventEmitter<{
 
     private listenForEve() {
         log("info", "Listening for EVE Logs");
-        const eveTail = new tail.Tail(this.getEVELogPath());
+        const eveTail = new tail.Tail(this.getEVELogPath(), {
+            useWatchFile: true,
+        });
+        // On windows this seems to happen on a interval of 1 second
         eveTail.on("line", (line: string) => {
             this.emit("eve-updated", line.trim());
         });

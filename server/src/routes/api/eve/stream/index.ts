@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import suricata from "../../../../utils/suricataService";
+import suricata from "@/utils/suricataService";
 import { log } from "@/utils/debug";
 
 export const GET = [

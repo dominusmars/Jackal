@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"log"
 	"math/rand"
 	"os"
+	"time"
 )
 
 func getIps(number int) []string {
@@ -23,8 +23,6 @@ func getPorts(number int) []int {
 	return ports
 }
 
-
-
 func getRandomIP() string {
 	return fmt.Sprintf("%d.%d.%d.%d", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
 }
@@ -33,10 +31,7 @@ func getRandomPort() int {
 	return rand.Intn(65536)
 }
 
-
-
-
-func main(){
+func main() {
 
 	SURICATA_EVE := os.Getenv("SURICATA_EVE")
 	if SURICATA_EVE == "" {
@@ -44,7 +39,7 @@ func main(){
 	}
 	log.Default().Print("SURICATA_EVE is set: using " + SURICATA_EVE)
 
-	numberOfComputers := 10
+	numberOfComputers := 100
 
 	ips := getIps(numberOfComputers)
 	ports := getPorts(numberOfComputers)

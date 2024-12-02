@@ -5,41 +5,10 @@ import fs from "fs";
 import readline from "readline";
 import { log } from "./debug";
 import sha256 from "sha256";
-
+import { ChildProcess, fork } from "child_process";
 const MONGO_URL = process.env.MONGO_URI || "localhost:27017";
 const MAX_LOGS = process.env.MAX_LOGS ? parseInt(process.env.MAX_LOGS) : false || 10000;
 const isDev = process.env.NODE_ENV === "development";
-class ExportEveQueue {
-    queue: SuricataEveLog[];
-    interval: number;
-    maxLength: number;
-    maxInterval: number;
-    db: mongodb.Db;
-    collectionName: string;
-    constructor(db: mongodb.Db, collectionName: string) {
-        this.queue = [];
-        this.interval = 0;
-        setInterval(() => {
-            if (this.queue.length == 0) return;
-            if (this.queue.length > this.maxLength || this.interval > this.maxInterval) {
-                this.exportQueue();
-            }
-            this.interval++;
-        }, 100);
-        this.maxLength = 100;
-        this.maxInterval = 10;
-        this.db = db;
-        this.collectionName = collectionName;
-    }
-
-    enqueue(log: SuricataEveLog) {
-        this.queue.push(log);
-    }
-
-    async exportQueue() {
-        await this.db.collection(this.collectionName).insertMany(this.queue);
-    }
-}
 
 class DataBase {
     db: mongodb.Db;
@@ -48,8 +17,8 @@ class DataBase {
     ready: boolean;
     eveCollectionName: string;
     dbName: string;
-    logProcessQueue: Promise<InsertOneResult<Document>>[];
-    maxProcessQueue: number;
+    logChild: ChildProcess;
+
     constructor() {
         // cant decide if this should start with mongodb:// or not
         const full_url = "mongodb://" + MONGO_URL;
@@ -59,23 +28,31 @@ class DataBase {
 
         const client = new MongoClient(full_url, {});
         client.connect().then(() => {
-            this.db = client.db(this.dbName);
             log("info", "Connected to MongoDB");
             // Might be a problem if there are too many logs, if this.updateLogs gets called too much it can cause a heap overflow
             suricata.on("eve-updated", (logs: string) => {
                 this.addLogToDB(logs);
             });
+
             this.init();
             this.ready = true;
         });
 
+        // Child process for queueing logs to the database, This allows for batch processing on a different thread
+        this.logChild = fork(__dirname + "/eveProcess", {
+            stdio: ["inherit", "inherit", "inherit", "ipc"],
+        });
+        this.logChild.on("error", (error: Error) => {
+            log("error", "Error in child process: " + error);
+        });
+        this.logChild.on("exit", (code) => {
+            log("error", "Child process exited with code: " + code);
+        });
+
         this.client = client;
         this.db = client.db(this.dbName);
-
         this.logCount = 0;
         this.ready = false;
-        this.logProcessQueue = [];
-        this.maxProcessQueue = 100;
     }
     // Initializes the database by checking the size of the log file and then processing it
     init() {
@@ -156,12 +133,8 @@ class DataBase {
             logs.hash = hash;
             logs.timestamp = new Date(logs.timestamp);
             logs.full_text = newLog;
-            if (this.logProcessQueue.length > this.maxProcessQueue) {
-                await Promise.all(this.logProcessQueue);
-                this.logProcessQueue = [];
-                log("info", "Processed " + this.logCount + " logs");
-            }
-            this.logProcessQueue.push(this.db.collection(this.eveCollectionName).insertOne(logs));
+
+            this.logChild.send({ type: "eve-log", data: logs });
         } catch (error) {
             log("error", "Error parsing JSON line: " + error);
         }
