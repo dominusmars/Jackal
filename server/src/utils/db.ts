@@ -18,7 +18,6 @@ class DataBase {
     logChild: ChildProcess;
 
     constructor() {
-        // cant decide if this should start with mongodb:// or not
         log("info", "Connecting to MongoDB at " + config.FULL_MONGO_URL);
         this.eveCollectionName = "eve";
         this.dbName = config.IS_DEV ? "jackal-dev" : "jackal";
