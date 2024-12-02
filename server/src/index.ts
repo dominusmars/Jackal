@@ -4,9 +4,8 @@ import morgan from "morgan";
 import { log } from "./utils/debug";
 import { config } from "dotenv";
 config();
+import Config from "./utils/jackalConfig";
 const app = express();
-
-const isDev = process.env.NODE_ENV === "development";
 
 function checkEnv() {
     if (!process.env.SURICATA_CONFIG) {
@@ -21,7 +20,7 @@ function checkEnv() {
     if (!process.env.MAX_LOGS) {
         log("warning", "MAX_LOGS not set, using default");
     }
-    if (isDev) {
+    if (Config.IS_DEV) {
         log("info", "Running in development mode");
     }
 }
@@ -46,9 +45,9 @@ async function startServer() {
     });
 
     app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
-        let message = isDev ? err.message : "Internal Server Error";
+        let message = Config.IS_DEV ? err.message : "Internal Server Error";
         log("error", err.message);
-        isDev && console.error(err);
+        Config.IS_DEV && console.error(err);
         res.status(500).send(message);
     });
     app.listen(3000, () => {

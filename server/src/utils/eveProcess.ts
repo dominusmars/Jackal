@@ -1,9 +1,8 @@
 import * as mongodb from "mongodb";
 import { SuricataEveLog } from "lib";
 import { log } from "./debug";
-const MONGO_URL = process.env.MONGO_URI || "localhost:27017";
-const isDev = process.env.NODE_ENV === "development";
-const dbName = isDev ? "jackal-dev" : "jackal";
+import config from "./jackalConfig";
+const dbName = config.IS_DEV ? "jackal-dev" : "jackal";
 
 type messageFromDB = {
     type: "eve-log";
@@ -63,10 +62,9 @@ class ExportEveQueue {
 }
 
 async function startListening() {
-    const full_url = `mongodb://${MONGO_URL}`;
-    log("info", "[eve-process] Connecting to MongoDB at " + full_url);
+    log("info", "[eve-process] Connecting to MongoDB at " + config.FULL_MONGO_URL);
 
-    const client = new mongodb.MongoClient(full_url);
+    const client = new mongodb.MongoClient(config.FULL_MONGO_URL);
     await client.connect();
     const db = client.db(dbName);
     log("info", "[eve-process] Connected to MongoDB");

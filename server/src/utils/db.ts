@@ -6,9 +6,7 @@ import readline from "readline";
 import { log } from "./debug";
 import sha256 from "sha256";
 import { ChildProcess, fork } from "child_process";
-const MONGO_URL = process.env.MONGO_URI || "localhost:27017";
-const MAX_LOGS = process.env.MAX_LOGS ? parseInt(process.env.MAX_LOGS) : false || 10000;
-const isDev = process.env.NODE_ENV === "development";
+import config from "./jackalConfig";
 
 class DataBase {
     db: mongodb.Db;
@@ -21,12 +19,11 @@ class DataBase {
 
     constructor() {
         // cant decide if this should start with mongodb:// or not
-        const full_url = "mongodb://" + MONGO_URL;
-        log("info", "Connecting to MongoDB at " + full_url);
+        log("info", "Connecting to MongoDB at " + config.FULL_MONGO_URL);
         this.eveCollectionName = "eve";
-        this.dbName = isDev ? "jackal-dev" : "jackal";
+        this.dbName = config.IS_DEV ? "jackal-dev" : "jackal";
 
-        const client = new MongoClient(full_url, {});
+        const client = new MongoClient(config.FULL_MONGO_URL, {});
         client.connect().then(() => {
             log("info", "Connected to MongoDB");
             // Might be a problem if there are too many logs, if this.updateLogs gets called too much it can cause a heap overflow
@@ -51,6 +48,7 @@ class DataBase {
 
         this.client = client;
         this.db = client.db(this.dbName);
+
         this.logCount = 0;
         this.ready = false;
     }
@@ -115,7 +113,7 @@ class DataBase {
     private async processBatch(batch: string[]) {
         for (const line of batch) {
             this.logCount++;
-            isDev && this.logCount % 1000 === 0 && log("info", "Processed " + this.logCount + " logs");
+            config.IS_DEV && this.logCount % 1000 === 0 && log("info", "Processed " + this.logCount + " logs");
             await this.addLogToDB(line);
         }
     }
@@ -144,7 +142,7 @@ class DataBase {
             .collection(this.eveCollectionName)
             .find({}, { projection: { full_text: 0 } })
             .sort({ timestamp: -1 })
-            .limit(MAX_LOGS)
+            .limit(config.MAX_LOGS)
             .toArray();
     }
     // returns the keys of logs in the database to make them easier to search through
@@ -234,7 +232,12 @@ class DataBase {
             query.full_text = { $not: { $regex: regex } };
         }
 
-        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).find(query).limit(MAX_LOGS).toArray();
+        return await this.db
+            .collection<SuricataEveLog>(this.eveCollectionName)
+            .find(query, { projection: { full_text: 0 } })
+            .sort({ timestamp: -1 })
+            .limit(config.MAX_LOGS)
+            .toArray();
     }
     close() {
         this.client.close();
