@@ -140,7 +140,7 @@ class Suricata extends EventEmitter<{
      */
     async getInterfaces(captureType: SuricataCaptureType): Promise<SuricataInterface[]> {
         let config = this.getSuricataConfig();
-        if (captureType === "dpdk") return config[captureType].interfaces || [];
+        if (captureType === "dpdk") return config[captureType]?.interfaces || [];
         return config[captureType] || [];
     }
     /**
@@ -178,6 +178,7 @@ class Suricata extends EventEmitter<{
     async addInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk") {
+            // TO DO when adding a DPPK interface, we need to add other configs to the other process
             if (!config[captureType].interfaces) config[captureType].interfaces = [];
             config[captureType].interfaces.push(networkInterface as SuricataDPDKInterface);
         } else {

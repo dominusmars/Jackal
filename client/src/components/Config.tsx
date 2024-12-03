@@ -9,12 +9,12 @@ function Config({}: Props) {
     const [loading, setLoading] = React.useState<boolean>(true);
     useEffect(() => {
         var fetchConfig = async () => {
+            setLoading(true);
             const response = await fetch("/api/config");
             const data = await response.json();
             setConfig(data);
             setLoading(false);
         };
-        setLoading(true);
         fetchConfig();
     }, []);
 
@@ -183,7 +183,7 @@ function Config({}: Props) {
                         <TextInput
                             id="unix-command"
                             type="text"
-                            value={SuricataConfig["unix-command"].enabled}
+                            value={SuricataConfig["unix-command"]?.enabled}
                             onChange={(e) => {
                                 const updatedUnixCommand = { ...SuricataConfig["unix-command"], enabled: e.target.value };
                                 setConfig({ ...SuricataConfig, "unix-command": updatedUnixCommand });
