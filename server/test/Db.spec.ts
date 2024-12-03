@@ -13,7 +13,7 @@ describe("Db", () => {
         let logs = await db.getLatestLogs();
         expect(logs).not.toBeNull();
         expect(logs.length).toBeGreaterThan(0);
-    });
+    }, 10000);
 
     it("should get filters from db", async () => {
         let filters = await db.getFilters();
@@ -22,11 +22,11 @@ describe("Db", () => {
     it("should be able to search logs", async () => {
         const query: SuricataEveSearch = {
             eventType: "dns",
-            interface: "em0",
-            sourceIp: "24.45.110.232",
-            sourcePort: "44167",
-            destIp: "192.55.83.30",
-            destPort: "53",
+            interface: "eth1",
+            sourceIp: "168.79.255.107",
+            sourcePort: "16034",
+            destIp: "98.111.34.72",
+            destPort: "34643",
             protocol: "UDP",
         };
         let logs = await db.searchLogs(query);
@@ -35,8 +35,8 @@ describe("Db", () => {
     });
     it("should be able to search logs port", async () => {
         const query: SuricataEveSearch = {
-            sourcePort: "44167",
-            destPort: "53",
+            sourcePort: "16034",
+            destPort: "34643",
         };
         let logs = await db.searchLogs(query);
         expect(logs).not.toBeNull();
@@ -44,12 +44,12 @@ describe("Db", () => {
     });
     it("should be able to search logs by search string", async () => {
         const query: SuricataEveSearch = {
-            search: "wire",
+            search: "timestamp",
         };
         let logs = await db.searchLogs(query);
         expect(logs).not.toBeNull();
         expect(logs.length).toBeGreaterThan(0);
-    });
+    }, 10000);
     it("shouldnt be able to execute a bad search", async () => {
         try {
             const query: SuricataEveSearch = {

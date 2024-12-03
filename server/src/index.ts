@@ -20,6 +20,7 @@ function checkEnv() {
     if (!process.env.MAX_LOGS) {
         log("warning", "MAX_LOGS not set, using default");
     }
+
     if (Config.IS_DEV) {
         log("info", "Running in development mode");
     }

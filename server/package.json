@@ -40,6 +40,7 @@
         "joi": "^17.13.3",
         "just-types": "^2.0.0-alpha.3",
         "lib": "file:../lib",
+        "lodash": "^4.17.21",
         "mongodb": "^6.11.0",
         "morgan": "^1.10.0",
         "sha256": "^0.2.0",

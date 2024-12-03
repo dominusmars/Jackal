@@ -313,15 +313,13 @@ export interface SuricataEveSearch {
     inverseSearch?: string;
 }
 export interface SuricataEveFilter {
-    eventType?: string[];
-    interface?: string[];
-    sourceIp?: string[];
-    sourcePort?: string[];
-    destIp?: string[];
-    destPort?: string[];
-    protocol?: string[];
-    startTime?: string;
-    endTime?: string;
+    eventTypes?: string[];
+    interfaces?: string[];
+    sourceIps?: string[];
+    sourcePorts?: string[];
+    destIps?: string[];
+    destPorts?: string[];
+    protocols?: string[];
 }
 export interface SuricataEveLog {
     timestamp: string | Date;

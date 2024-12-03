@@ -1,13 +1,26 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useEve } from "../Providers/EveProvider";
 import { EveLog } from "../components/EveLog";
-import { Button, TextInput } from "flowbite-react";
+import { Button, Spinner, TextInput } from "flowbite-react";
 import { FilterSelect, SelectFrom } from "../components/FilterSelect";
 import PageTitle from "../components/PageTitle";
 
 const Home: React.FC = () => {
-    const { EveLogs, eventTypes, interfaces, sourceIps, sourcePorts, destIps, destPorts, protocols, setSearch, filteredLogs, isPaused, pauseLogs } =
-        useEve();
+    const {
+        EveLogs,
+        eventTypes,
+        interfaces,
+        sourceIps,
+        sourcePorts,
+        destIps,
+        destPorts,
+        protocols,
+        setSearch,
+        filteredLogs,
+        isPaused,
+        pauseLogs,
+        loading,
+    } = useEve();
 
     const [ascending, setAscending] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -123,7 +136,7 @@ const Home: React.FC = () => {
                                 pauseLogs(pause);
                             }}
                         >
-                            {isPaused ? "unpause" : "pause"}
+                            {isPaused ? "Unpause Live" : "Pause Live"}
                         </Button>
                         <Button className="text-gray-800 dark:text-white" onClick={() => setAscending(!ascending)}>
                             {ascending ? "Ascending" : "Descending"}
@@ -156,6 +169,7 @@ const Home: React.FC = () => {
                             onChange={(value: string) => setLogsPerPage(parseInt(value))}
                         />
                     </div>
+                    {loading && <Spinner>Loading...</Spinner>}
                 </div>
                 <div className="">
                     <table className="w-full bg-white dark:bg-gray-800">

@@ -10,17 +10,7 @@ export const GET = [
         res.flushHeaders();
 
         const sendLine = (line: string) => {
-            if (line.trim() !== "") {
-                try {
-                    if (line.trim().startsWith("{") && line.trim().endsWith("}")) {
-                        res.write(`data: ${line.trim()}\n\n`);
-                    } else {
-                        log("info", "EVE line not JSON:" + line);
-                    }
-                } catch (parseError) {
-                    console.error("Error parsing line:", parseError);
-                }
-            }
+            res.write(`data: ${line}\n\n`);
         };
         suricata.on("eve-updated", sendLine);
     },

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
-import { SuricataEveLog, SuricataEveSearch } from "lib";
+import { SuricataEveFilter, SuricataEveLog, SuricataEveSearch } from "lib";
 import debounce from "lodash.debounce";
-
+import { throttle } from "lodash";
 interface EveContextProps {
     eventTypes: string[];
     interfaces: string[];
@@ -15,6 +15,7 @@ interface EveContextProps {
     filteredLogs: SuricataEveLog[];
     EveLogs: SuricataEveLog[];
     isPaused: boolean;
+    loading: boolean;
 }
 
 const EveContext = createContext<EveContextProps | undefined>(undefined);
@@ -24,6 +25,8 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [isPaused, setIsPaused] = useState(false);
     const paused = useRef(false);
     const pausedLogs = useRef<SuricataEveLog[]>([]);
+    const [loading, setLoading] = useState(false);
+
     const pauseLogs = (pause: boolean) => {
         setIsPaused(pause);
         paused.current = pause;
@@ -33,14 +36,14 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
     };
 
-    const [filters, setFilters] = useState({
-        eventTypes: new Set<string>(),
-        interfaces: new Set<string>(),
-        sourceIps: new Set<string>(),
-        sourcePorts: new Set<string>(),
-        destIps: new Set<string>(),
-        destPorts: new Set<string>(),
-        protocols: new Set<string>(),
+    const [filters, setFilters] = useState<SuricataEveFilter>({
+        eventTypes: [],
+        interfaces: [],
+        sourceIps: [],
+        sourcePorts: [],
+        destIps: [],
+        destPorts: [],
+        protocols: [],
     });
     const searchRef = useRef<SuricataEveSearch>({
         eventType: "",
@@ -59,10 +62,12 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [filteredLogs, setFilteredLogs] = useState<SuricataEveLog[]>([]);
     const filterLogs = useCallback(
         debounce(async (filters: SuricataEveSearch, dbQuery: boolean) => {
-            let query = new URLSearchParams({ ...filters }).toString();
             const regex = filters.search && filters.search != "" ? new RegExp(filters.search, "i") : null;
             const regexInverse = filters.inverseSearch && filters.inverseSearch != "" ? new RegExp(filters.inverseSearch, "i") : null;
             if (dbQuery) {
+                setLoading(true);
+                let query = new URLSearchParams({ ...filters }).toString();
+
                 let response = await fetch("/api/eve/query?" + query, {
                     method: "GET",
                 });
@@ -72,14 +77,15 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 }
                 let logs = await response.json();
                 logsRef.current = logs;
+                setLoading(false);
             }
-
             setFilteredLogs(
                 logsRef.current.filter((log) => {
                     const logTime = new Date(log.timestamp).getTime();
                     const startTime = filters.startTime ? new Date(filters.startTime).getTime() : null;
                     const endTime = filters.endTime ? new Date(filters.endTime).getTime() : null;
                     // might want to append text to log to stop needing to stringify every time
+                    // DB has full_text field for this, but it might cause performance issues to send it over oppose to stringify the log every time
                     let stringify = JSON.stringify(log);
                     return (
                         (!filters.eventType || log.event_type === filters.eventType) &&
@@ -112,85 +118,85 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const response = await fetch("/api/eve");
             const logs = await response.json();
             logsRef.current = logs;
-            const newEventTypes = new Set(filters.eventTypes);
-            const newInterfaces = new Set(filters.interfaces);
-            const newSourceIps = new Set(filters.sourceIps);
-            const newSourcePorts = new Set(filters.sourcePorts);
-            const newDestIps = new Set(filters.destIps);
-            const newDestPorts = new Set(filters.destPorts);
-            const newProtocols = new Set(filters.protocols);
 
-            logs.forEach((log: SuricataEveLog) => {
+            const filterResponse = await fetch("/api/eve/filters");
+
+            if (filterResponse.ok) {
+                setFilters(await filterResponse.json());
+            }
+
+            setSearch(searchRef.current, false);
+        };
+
+        getInitialLogs();
+    }, []);
+    const debouncedCurrentFilters = useCallback(
+        debounce(async () => {
+            const newEventTypes = new Set<string>();
+            const newInterfaces = new Set<string>();
+            const newSourceIps = new Set<string>();
+            const newSourcePorts = new Set<string>();
+            const newDestIps = new Set<string>();
+            const newDestPorts = new Set<string>();
+            const newProtocols = new Set<string>();
+
+            logsRef.current.forEach((log) => {
                 if (log.event_type !== undefined) newEventTypes.add(log.event_type.trim());
                 if (log.in_iface !== undefined) newInterfaces.add(log.in_iface.trim());
                 if (log.src_ip !== undefined) newSourceIps.add(log.src_ip.trim());
                 if (log.src_port !== undefined) newSourcePorts.add(log.src_port.toString());
                 if (log.dest_ip !== undefined) newDestIps.add(log.dest_ip.trim());
                 if (log.dest_port !== undefined) newDestPorts.add(log.dest_port.toString());
-                if (log.proto) newProtocols.add(log.proto.trim());
+                if (log.proto !== undefined) newProtocols.add(log.proto.trim());
             });
+
             setFilters({
-                eventTypes: newEventTypes,
-                interfaces: newInterfaces,
-                sourceIps: newSourceIps,
-                sourcePorts: newSourcePorts,
-                destIps: newDestIps,
-                destPorts: newDestPorts,
-                protocols: newProtocols,
+                eventTypes: Array.from(newEventTypes).toSorted((a, b) => a.localeCompare(b)),
+                interfaces: Array.from(newInterfaces).toSorted((a, b) => a.localeCompare(b)),
+                sourceIps: Array.from(newSourceIps).toSorted((a, b) => a.localeCompare(b)),
+                sourcePorts: Array.from(newSourcePorts).toSorted((a, b) => a.localeCompare(b)),
+                destIps: Array.from(newDestIps).toSorted((a, b) => a.localeCompare(b)),
+                destPorts: Array.from(newDestPorts).toSorted((a, b) => a.localeCompare(b)),
+                protocols: Array.from(newProtocols).toSorted((a, b) => a.localeCompare(b)),
             });
-            setSearch(searchRef.current, false);
-        };
+        }, 300),
+        [logsRef.current]
+    );
 
-        getInitialLogs();
-    }, []);
-
+    // updating Current filters to reflect logs
     useEffect(() => {
         const eventSource = new EventSource("/api/eve/stream");
-        const handleEvent = (event: MessageEvent) => {
-            const newEvent: SuricataEveLog = JSON.parse(event.data);
+
+        const eventQueue: SuricataEveLog[] = [];
+
+        // this updates the logsRef with the new logs
+        // throttling this function is necessary to maintain performance
+        const processQueue = throttle(() => {
+            if (eventQueue.length === 0) return;
+
+            const newEvents = [...eventQueue];
+            eventQueue.length = 0;
 
             if (paused.current) {
-                pausedLogs.current = [newEvent, ...pausedLogs.current];
-                return;
-            } else if (pausedLogs.current.length > 0) {
-                logsRef.current = [...pausedLogs.current, ...logsRef.current];
-                pausedLogs.current = [];
-            }
-
-            logsRef.current = [newEvent, ...logsRef.current];
-
-            logsRef.current = logsRef.current.slice(0, MAX_LOGS);
-
-            try {
-                setFilters((prevFilters) => {
-                    const newEventTypes = new Set(prevFilters.eventTypes);
-                    const newInterfaces = new Set(prevFilters.interfaces);
-                    const newSourceIps = new Set(prevFilters.sourceIps);
-                    const newSourcePorts = new Set(prevFilters.sourcePorts);
-                    const newDestIps = new Set(prevFilters.destIps);
-                    const newDestPorts = new Set(prevFilters.destPorts);
-                    const newProtocols = new Set(prevFilters.protocols);
-
-                    if (newEvent.event_type !== undefined) newEventTypes.add(newEvent.event_type.trim());
-                    if (newEvent.in_iface !== undefined) newInterfaces.add(newEvent.in_iface.trim());
-                    if (newEvent.src_ip !== undefined) newSourceIps.add(newEvent.src_ip.trim());
-                    if (newEvent.src_port !== undefined) newSourcePorts.add(newEvent.src_port.toString());
-                    if (newEvent.dest_ip !== undefined) newDestIps.add(newEvent.dest_ip.trim());
-                    if (newEvent.dest_port !== undefined) newDestPorts.add(newEvent.dest_port.toString());
-                    if (newEvent.proto) newProtocols.add(newEvent.proto.trim());
-
-                    return {
-                        eventTypes: newEventTypes,
-                        interfaces: newInterfaces,
-                        sourceIps: newSourceIps,
-                        sourcePorts: newSourcePorts,
-                        destIps: newDestIps,
-                        destPorts: newDestPorts,
-                        protocols: newProtocols,
-                    };
-                });
-
+                pausedLogs.current = [...newEvents, ...pausedLogs.current];
+                pausedLogs.current = pausedLogs.current.slice(0, MAX_LOGS);
+            } else {
+                if (pausedLogs.current.length > 0) {
+                    logsRef.current = [...pausedLogs.current, ...logsRef.current];
+                    pausedLogs.current.length = 0;
+                }
+                logsRef.current = [...newEvents, ...logsRef.current];
+                logsRef.current = logsRef.current.slice(0, MAX_LOGS);
+                debouncedCurrentFilters();
                 setSearch(searchRef.current, false);
+            }
+        }, 500);
+
+        const handleEvent = (event: MessageEvent) => {
+            try {
+                const newEvent: SuricataEveLog = JSON.parse(event.data);
+                eventQueue.push(newEvent);
+                processQueue();
             } catch (error) {
                 console.error("Error parsing log:", error);
             }
@@ -207,17 +213,18 @@ export const EveProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         <EveContext.Provider
             value={{
                 EveLogs: logsRef.current,
-                eventTypes: Array.from(filters.eventTypes),
-                interfaces: Array.from(filters.interfaces),
-                sourceIps: Array.from(filters.sourceIps),
-                sourcePorts: Array.from(filters.sourcePorts),
-                destIps: Array.from(filters.destIps),
-                destPorts: Array.from(filters.destPorts),
-                protocols: Array.from(filters.protocols),
+                eventTypes: filters.eventTypes || [],
+                interfaces: filters.interfaces || [],
+                sourceIps: filters.sourceIps || [],
+                sourcePorts: filters.sourcePorts || [],
+                destIps: filters.destIps || [],
+                destPorts: filters.destPorts || [],
+                protocols: filters.protocols || [],
                 setSearch,
                 pauseLogs,
                 isPaused,
                 filteredLogs,
+                loading,
             }}
         >
             {children}

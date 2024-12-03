@@ -25,7 +25,7 @@ const isDev = process.env.NODE_ENV === "development";
 const SURICATA_CONFIG = process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml";
 
 class Suricata extends EventEmitter<{
-    "eve-updated": string[];
+    "eve-updated": string[]; // Already checked and trimmed
 }> {
     serviceConfig: SuricataConfig;
     eveTail: tail.Tail | undefined;
@@ -42,14 +42,18 @@ class Suricata extends EventEmitter<{
         this.listenForEve();
     }
 
+    // Eve Parse function, listens to the eve.json file and emits an event when a new log is seen
     private listenForEve() {
         log("info", "Listening for EVE Logs");
-        const eveTail = new tail.Tail(this.getEVELogPath(), {
-            useWatchFile: true,
-        });
+        const eveTail = new tail.Tail(this.getEVELogPath(), {});
         // On windows this seems to happen on a interval of 1 second
         eveTail.on("line", (line: string) => {
-            this.emit("eve-updated", line.trim());
+            const trimLine = line.trim();
+            if (trimLine == "") return;
+            // elementary json check, ps terrible way to match json format
+            // should be fine because we're taking it from the eve.json file...
+            if (!(trimLine.startsWith("{") && trimLine.endsWith("}"))) return;
+            this.emit("eve-updated", trimLine);
         });
         this.eveTail = eveTail;
     }
@@ -136,8 +140,8 @@ class Suricata extends EventEmitter<{
      */
     async getInterfaces(captureType: SuricataCaptureType): Promise<SuricataInterface[]> {
         let config = this.getSuricataConfig();
-        if (captureType === "dpdk") return config[captureType].interfaces;
-        return config[captureType];
+        if (captureType === "dpdk") return config[captureType].interfaces || [];
+        return config[captureType] || [];
     }
     /**
      *  Updates the interface in the suricata config
@@ -147,19 +151,23 @@ class Suricata extends EventEmitter<{
     async updateInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk") {
+            if (!config[captureType].interfaces) return [networkInterface];
             config[captureType].interfaces = config[captureType].interfaces.map((iface) => {
                 if (iface.interface === networkInterface.interface) {
                     return networkInterface as SuricataDPDKInterface;
                 }
                 return iface;
             });
-        } else
+        } else {
+            if (!config[captureType]) return [networkInterface];
             config[captureType] = config[captureType].map((iface) => {
                 if (iface.interface === networkInterface.interface) {
                     return networkInterface;
                 }
                 return iface;
             }) as SuricataAFInterface[] & SuricataXDPInterface[] & SuricataPcapInterface[];
+        }
+
         this.writeSuricataConfig(config);
     }
     /**
@@ -170,23 +178,31 @@ class Suricata extends EventEmitter<{
     async addInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
         if (captureType === "dpdk") {
+            if (!config[captureType].interfaces) config[captureType].interfaces = [];
             config[captureType].interfaces.push(networkInterface as SuricataDPDKInterface);
-        } else config[captureType].push(networkInterface as any);
+        } else {
+            if (!config[captureType]) config[captureType] = [networkInterface as SuricataAFInterface & SuricataXDPInterface & SuricataPcapInterface];
+            config[captureType].push(networkInterface as SuricataAFInterface & SuricataXDPInterface & SuricataPcapInterface);
+        }
         this.writeSuricataConfig(config);
     }
     /**
      *  remove the interface from the suricata config
      *
-     *  Interfaces are filtered based on the SuricataCaptureType in Request. Do not call this function without validating the capture type corisponding to the interface
+     *  Interfaces are filtered based on the SuricataCaptureType in Request. Do not call this function without validating the capture type corresponding to the interface
      */
     async removeInterface(networkInterface: SuricataInterface, captureType: SuricataCaptureType) {
         let config = this.getSuricataConfig();
-        if (captureType === "dpdk")
+        if (captureType === "dpdk") {
+            if (!config[captureType].interfaces) return;
             config[captureType].interfaces = config[captureType].interfaces.filter((iface) => iface.interface !== networkInterface.interface);
-        else
+        } else {
+            if (!config[captureType]) return;
             config[captureType] = config[captureType].filter((iface) => iface.interface !== networkInterface.interface) as SuricataAFInterface[] &
                 SuricataXDPInterface[] &
                 SuricataPcapInterface[];
+        }
+
         this.writeSuricataConfig(config);
     }
 
