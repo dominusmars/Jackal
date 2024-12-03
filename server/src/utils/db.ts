@@ -57,7 +57,7 @@ class DataBase {
         let stat = fs.statSync(suricata.getEVELogPath());
         let fileSize = stat.size;
         // Speeds up the db search by creating indexes
-        this.db.collection(this.eveCollectionName).createIndex({ hash: 1 }, { unique: true });
+        this.db.collection(this.eveCollectionName).createIndex({ hash: 1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ timestamp: -1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ in_iface: 1, timestamp: -1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ proto: 1, timestamp: -1 }, { unique: false });
