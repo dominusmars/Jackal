@@ -56,11 +56,12 @@ class DataBase {
     init() {
         let stat = fs.statSync(suricata.getEVELogPath());
         let fileSize = stat.size;
-        // Should stop duplicate logs from being inserted
+        // Speeds up the db search by creating indexes
         this.db.collection(this.eveCollectionName).createIndex({ hash: 1 }, { unique: true });
-        this.db.collection(this.eveCollectionName).createIndex({ in_iface: 1 }, { unique: false });
-        this.db.collection(this.eveCollectionName).createIndex({ proto: 1 }, { unique: false });
-        this.db.collection(this.eveCollectionName).createIndex({ event_type: 1 }, { unique: false });
+        this.db.collection(this.eveCollectionName).createIndex({ timestamp: -1 }, { unique: false });
+        this.db.collection(this.eveCollectionName).createIndex({ in_iface: 1, timestamp: -1 }, { unique: false });
+        this.db.collection(this.eveCollectionName).createIndex({ proto: 1, timestamp: -1 }, { unique: false });
+        this.db.collection(this.eveCollectionName).createIndex({ event_type: 1, timestamp: -1 }, { unique: false });
         if (fileSize > 50 * 1024 * 1024) {
             log("error", "Log file is too large, skipping processing");
             log("info", "Log file size: " + fileSize);
@@ -118,7 +119,7 @@ class DataBase {
     getLatestLogs() {
         return this.db
             .collection(this.eveCollectionName)
-            .find({}, { projection: { full_text: 0 } })
+            .find({}, { projection: { full_text: 0, hash: 0 } })
             .sort({ timestamp: -1 })
             .limit(config.MAX_LOGS)
             .toArray();
@@ -209,12 +210,11 @@ class DataBase {
             let regex = new RegExp(filters.inverseSearch, "i");
             query.full_text = { $not: { $regex: regex } };
         }
-
         return await this.db
             .collection<SuricataEveLog>(this.eveCollectionName)
-            .find(query, { projection: { full_text: 0 } })
-            .sort({ timestamp: -1 })
+            .find(query, { projection: { full_text: 0, hash: 0 } })
             .limit(config.MAX_LOGS)
+            .sort({ timestamp: -1 })
             .toArray();
     }
     close() {
