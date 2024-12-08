@@ -14,6 +14,7 @@ const MainNavBar: React.FC = () => {
             </div>
             <Navbar.Collapse>
                 <Link to="/">Home</Link>
+                <Link to="/tagged">Tagged</Link>
                 <Link to="/map">Map</Link>
                 <Link to="/rules">Rules</Link>
                 <Link to="/interfaces">Interfaces</Link>

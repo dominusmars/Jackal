@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SuricataEveLog } from "lib";
 import { format } from "date-fns";
 import { useState } from "react";
 import classnames from "classnames";
+import { Badge, Button } from "flowbite-react";
+import { CiFlag1 } from "react-icons/ci";
 export function EveLog({ log }: { log: SuricataEveLog }) {
     const [showDetails, setShowDetails] = useState(false);
-
+    const [tag, setTag] = useState<string | undefined>(log.tag);
     if (!log) {
         return null;
     }
@@ -26,7 +28,31 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
         }
         return "";
     }
+    async function postTag(e: React.MouseEvent) {
+        e.stopPropagation();
 
+        await fetch(`/api/eve/tag?flowId=${log.flow_id}`, {
+            method: "POST",
+        });
+
+        setTag("default");
+    }
+
+    async function deleteTag(e: React.MouseEvent) {
+        e.stopPropagation();
+        await fetch(`/api/eve/tag?flowId=${log.flow_id}`, {
+            method: "DELETE",
+        });
+
+        setTag(undefined);
+    }
+
+    useEffect(() => {
+        setTag(log.tag);
+    }, [log.tag]);
+    useEffect(() => {
+        setShowDetails(false);
+    }, [log]);
     return (
         <>
             <tr
@@ -45,10 +71,19 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                 <td className="border px-4 py-2">{log.dest_ip}</td>
                 <td className="border px-4 py-2">{log.dest_port}</td>
                 <td className="border px-4 py-2">{log?.proto || ""}</td>
+                <td className="border z-10">
+                    <div className="flex justify-center transition-all ">
+                        {tag ? (
+                            <Badge color="green" icon={CiFlag1} onClick={deleteTag} />
+                        ) : (
+                            <Badge color="dark" icon={CiFlag1} onClick={postTag}></Badge>
+                        )}
+                    </div>
+                </td>
             </tr>
             {showDetails && (
                 <tr>
-                    <td colSpan={8} className="border px-4 py-2 max-w-screen-lg">
+                    <td colSpan={9} className="border px-4 py-2 max-w-screen-lg">
                         <div className="text-gray-700 dark:text-gray-400">
                             <p>Source IP: {log.src_ip}</p>
                             {log.src_port && <p>Source Port: {log.src_port}</p>}

@@ -322,6 +322,7 @@ export interface SuricataEveFilter {
     protocols?: string[];
 }
 export interface SuricataEveLog {
+    // From Suricata
     timestamp: string | Date;
     event_type: string;
     src_ip: string;
@@ -373,7 +374,8 @@ export interface SuricataEveLog {
     icmp_code?: number;
     event_severity?: number;
     proto_txt?: string;
-    // Added by Jackal to prevent duplicate logs
+    // Added by Jackal
     full_text: string;
     hash: string;
+    tag?: string;
 }

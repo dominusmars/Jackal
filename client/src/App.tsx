@@ -11,6 +11,7 @@ import { RulesProvider } from "./Providers/RulesProvider";
 import { Footer } from "flowbite-react";
 import Interfaces from "./pages/Interfaces";
 import Settings from "./pages/Settings";
+import Tagged from "./pages/Tagged";
 
 const App: React.FC = () => {
     return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/map" element={<Map />} />
+                                <Route path="/tagged" element={<Tagged />} />
                                 <Route path="/stats" element={<ViewFile fileUrl="/api/file/stats" />} />
                                 <Route path="/service" element={<ViewFile fileUrl="/api/file/service" />} />
                                 <Route path="/fast" element={<ViewFile fileUrl="/api/file/fast" />} />

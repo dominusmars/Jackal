@@ -116,14 +116,16 @@ class DataBase {
             log("error", "Error parsing JSON line: " + error);
         }
     }
+    // Returns the latest logs from the database
     getLatestLogs() {
         return this.db
             .collection(this.eveCollectionName)
-            .find({}, { projection: { full_text: 0, hash: 0 } })
+            .find({}, { projection: { full_text: 0 } })
             .sort({ timestamp: -1 })
             .limit(config.MAX_LOGS)
             .toArray();
     }
+
     // returns the keys of logs in the database to make them easier to search through
     async getFilters() {
         const filter = {} as SuricataEveFilter;
@@ -167,6 +169,23 @@ class DataBase {
             filter.protocols = data.protocol;
         }
         return filter;
+    }
+    // Tagged will be default on first insert, but can be updated later
+    // Tagged will be based on the flow_id of the log, this includes all logs in the same flow based on how suricata logs are structured
+    async updateTag(flowId: number, tag: string = "default") {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $set: { tag: tag } });
+    }
+    // returns all logs that have a tag
+    async getTaggedLogs() {
+        return await this.db
+            .collection<SuricataEveLog>(this.eveCollectionName)
+            .find({ tag: { $exists: true } })
+            .toArray();
+    }
+    // Unset tag for logs based on flow_id
+    // doesn't matter how many times this is called, it will only unset the tag if it exists
+    async unsetTag(flowId: number) {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $unset: { tag: 1 } });
     }
 
     // Db search for logs based on filters
@@ -212,7 +231,7 @@ class DataBase {
         }
         return await this.db
             .collection<SuricataEveLog>(this.eveCollectionName)
-            .find(query, { projection: { full_text: 0, hash: 0 } })
+            .find(query, { projection: { full_text: 0 } })
             .limit(config.MAX_LOGS)
             .sort({ timestamp: -1 })
             .toArray();
