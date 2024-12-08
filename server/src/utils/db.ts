@@ -119,11 +119,12 @@ class DataBase {
     getLatestLogs() {
         return this.db
             .collection(this.eveCollectionName)
-            .find({}, { projection: { full_text: 0, hash: 0 } })
+            .find({}, { projection: { full_text: 0 } })
             .sort({ timestamp: -1 })
             .limit(config.MAX_LOGS)
             .toArray();
     }
+
     // returns the keys of logs in the database to make them easier to search through
     async getFilters() {
         const filter = {} as SuricataEveFilter;
@@ -167,6 +168,19 @@ class DataBase {
             filter.protocols = data.protocol;
         }
         return filter;
+    }
+    // Flags will be default on first insert, but can be updated later
+    async updateFlag(flowId: number, flag: string = "default") {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateOne({ flow_id: flowId }, { $set: { flag: flag } });
+    }
+    async getFlaggedLogs() {
+        return await this.db
+            .collection<SuricataEveLog>(this.eveCollectionName)
+            .find({ flag: { $exists: true } })
+            .toArray();
+    }
+    async unsetFlag(flowId: number) {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $unset: { flag: 1 } });
     }
 
     // Db search for logs based on filters
@@ -212,7 +226,7 @@ class DataBase {
         }
         return await this.db
             .collection<SuricataEveLog>(this.eveCollectionName)
-            .find(query, { projection: { full_text: 0, hash: 0 } })
+            .find(query, { projection: { full_text: 0 } })
             .limit(config.MAX_LOGS)
             .sort({ timestamp: -1 })
             .toArray();

@@ -5,9 +5,11 @@ import { SuricataEveLog } from "lib";
 import { format } from "date-fns";
 import { useState } from "react";
 import classnames from "classnames";
+import { Badge, Button } from "flowbite-react";
+import { CiFlag1 } from "react-icons/ci";
 export function EveLog({ log }: { log: SuricataEveLog }) {
     const [showDetails, setShowDetails] = useState(false);
-
+    const [flag, setFlag] = useState<string | undefined>(log.flag);
     if (!log) {
         return null;
     }
@@ -25,6 +27,21 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
             return "bg-yellow-200 dark:bg-yellow-700";
         }
         return "";
+    }
+    async function postFlag() {
+        await fetch(`/api/eve/flag?flowId=${log.flow_id}`, {
+            method: "POST",
+        });
+
+        setFlag("default");
+    }
+
+    async function deleteFlag() {
+        await fetch(`/api/eve/flag?flowId=${log.flow_id}`, {
+            method: "DELETE",
+        });
+
+        setFlag(undefined);
     }
 
     return (
@@ -45,6 +62,15 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                 <td className="border px-4 py-2">{log.dest_ip}</td>
                 <td className="border px-4 py-2">{log.dest_port}</td>
                 <td className="border px-4 py-2">{log?.proto || ""}</td>
+                <td className="border">
+                    <div className="flex justify-center transition-all">
+                        {flag ? (
+                            <Badge color="green" icon={CiFlag1} onClick={deleteFlag} />
+                        ) : (
+                            <Badge color="red" icon={CiFlag1} onClick={postFlag}></Badge>
+                        )}
+                    </div>
+                </td>
             </tr>
             {showDetails && (
                 <tr>
