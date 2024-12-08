@@ -36,6 +36,7 @@
         "express": "^4.21.1",
         "express-file-routing": "^3.0.3",
         "express-ws": "^5.0.2",
+        "jackal": "file:",
         "jest": "^29.7.0",
         "joi": "^17.13.3",
         "just-types": "^2.0.0-alpha.3",

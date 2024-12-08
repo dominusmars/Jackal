@@ -116,6 +116,7 @@ class DataBase {
             log("error", "Error parsing JSON line: " + error);
         }
     }
+    // Returns the latest logs from the database
     getLatestLogs() {
         return this.db
             .collection(this.eveCollectionName)
@@ -169,18 +170,22 @@ class DataBase {
         }
         return filter;
     }
-    // Flags will be default on first insert, but can be updated later
-    async updateFlag(flowId: number, flag: string = "default") {
-        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateOne({ flow_id: flowId }, { $set: { flag: flag } });
+    // Tagged will be default on first insert, but can be updated later
+    // Tagged will be based on the flow_id of the log, this includes all logs in the same flow based on how suricata logs are structured
+    async updateTag(flowId: number, tag: string = "default") {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $set: { tag: tag } });
     }
-    async getFlaggedLogs() {
+    // returns all logs that have a tag
+    async getTaggedLogs() {
         return await this.db
             .collection<SuricataEveLog>(this.eveCollectionName)
-            .find({ flag: { $exists: true } })
+            .find({ tag: { $exists: true } })
             .toArray();
     }
-    async unsetFlag(flowId: number) {
-        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $unset: { flag: 1 } });
+    // Unset tag for logs based on flow_id
+    // doesn't matter how many times this is called, it will only unset the tag if it exists
+    async unsetTag(flowId: number) {
+        return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $unset: { tag: 1 } });
     }
 
     // Db search for logs based on filters

@@ -377,5 +377,5 @@ export interface SuricataEveLog {
     // Added by Jackal
     full_text: string;
     hash: string;
-    flag?: string;
+    tag?: string;
 }

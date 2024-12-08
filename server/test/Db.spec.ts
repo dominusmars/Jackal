@@ -61,6 +61,31 @@ describe("Db", () => {
             expect(error).not.toBeNull();
         }
     });
+    it("should be able to add default tag to logs", async () => {
+        const flow_id = 439579186;
+        await db.updateTag(flow_id, "default");
+        let logs = await db.getTaggedLogs();
+        expect(logs).not.toBeNull();
+        expect(logs.length).toBeGreaterThan(0);
+        expect(logs.filter((log) => log.flow_id == flow_id).length).toBeGreaterThan(0);
+    });
+    it("should be able to add custom tag to logs", async () => {
+        const flow_id = 439579186;
+        await db.updateTag(flow_id, "custom");
+        let logs = await db.getTaggedLogs();
+        expect(logs).not.toBeNull();
+        expect(logs.length).toBeGreaterThan(0);
+        expect(logs.filter((log) => log.flow_id == flow_id).length).toBeGreaterThan(0);
+        expect(logs.filter((log) => log.flow_id == flow_id && log.tag == "custom").length).toBeGreaterThan(0);
+    });
+    it("should be able to remove tag from logs", async () => {
+        const flow_id = 439579186;
+        await db.unsetTag(flow_id);
+        let logs = await db.getTaggedLogs();
+        expect(logs).not.toBeNull();
+        expect(logs.length).toBeGreaterThan(0);
+        expect(logs.filter((log) => log.flow_id == flow_id).length).toBe(0);
+    });
 
     afterAll(() => {
         db.close();

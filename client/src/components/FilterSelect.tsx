@@ -5,6 +5,7 @@ interface FilterSelectProps {
     label: string;
     options: string[];
     onChange: (value: string) => void;
+    defaultValue?: string;
 }
 interface FilterSelectMultiProps {
     label: string;
@@ -28,10 +29,14 @@ const FilterSelect: React.FC<FilterSelectProps> = ({ label, options, onChange })
         </datalist>
     </>
 );
-const SelectFrom: React.FC<FilterSelectProps> = ({ label, options, onChange }) => (
+const SelectFrom: React.FC<FilterSelectProps> = ({ label, options, onChange, defaultValue }) => (
     <>
         <label className="block text-gray-700 dark:text-white">{label}</label>
-        <Select className="text-gray-800 dark:text-white p-2 border-s-slate-950 dark:border-s-slate-950" onChange={(e) => onChange(e.target.value)}>
+        <Select
+            defaultValue={defaultValue}
+            className="text-gray-800 dark:text-white p-2 border-s-slate-950 dark:border-s-slate-950"
+            onChange={(e) => onChange(e.target.value)}
+        >
             {options.map((option, i) => (
                 <option key={i} value={option}>
                     {option}

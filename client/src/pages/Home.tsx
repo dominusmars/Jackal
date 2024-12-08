@@ -183,12 +183,12 @@ const Home: React.FC = () => {
                                 <th className="px-4 py-2">Dest IP</th>
                                 <th className="px-4 py-2">Dest Port</th>
                                 <th className="px-4 py-2">Protocol</th>
-                                <th className="px-4 py-2">Flag</th>
+                                <th className="px-4 py-2">Tag</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedLogs.map((log, i) => (
-                                <EveLog key={i} log={log} />
+                            {paginatedLogs.map((log) => (
+                                <EveLog key={log.hash} log={log} />
                             ))}
                         </tbody>
                     </table>
