@@ -10,8 +10,8 @@ import Rules from "./pages/Rules";
 import { RulesProvider } from "./Providers/RulesProvider";
 import { Footer } from "flowbite-react";
 import Interfaces from "./pages/Interfaces";
-import Settings from "./pages/Settings";
 import Tagged from "./pages/Tagged";
+import Config from "./pages/Config";
 
 const App: React.FC = () => {
     return (
@@ -30,7 +30,8 @@ const App: React.FC = () => {
                                 <Route path="/fast" element={<ViewFile fileUrl="/api/file/fast" />} />
                                 <Route path="/rules" element={<Rules />} />
                                 <Route path="/interfaces" element={<Interfaces />} />
-                                <Route path="/settings" element={<Settings />} />
+                               
+                                <Route path="/config" element={<Config />} />
 
                                 {/* <Route path="/about" element={} /> */}
                             </Routes>

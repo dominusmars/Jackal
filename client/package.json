@@ -13,6 +13,7 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
+        "@focus-reactive/react-yaml": "^1.1.2",
         "autoprefixer": "^10.4.20",
         "client": "file:",
         "date-fns": "^4.1.0",

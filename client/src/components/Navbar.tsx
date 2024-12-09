@@ -21,7 +21,7 @@ const MainNavBar: React.FC = () => {
                 <Link to="/fast">Fast</Link>
                 <Link to="/stats">Stats</Link>
                 <Link to="/service">Service</Link>
-                <Link to="/settings">Settings</Link>
+                <Link to="/config">Config</Link>
             </Navbar.Collapse>
         </Navbar>
     );
