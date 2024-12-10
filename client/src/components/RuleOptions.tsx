@@ -44,13 +44,13 @@ const RuleOptions: React.FC<RuleOptionsProps> = ({ options, setOptions }) => {
                     name="optionKey"
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
-                    placeholder="Option Key"
+                    placeholder="Meta Key"
                 />
                 <TextInput
                     name="optionValue"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    placeholder="Option Value"
+                    placeholder="Meta Value"
                 />
                 <Button onClick={handleAddOption}>Add Option</Button>
             </div>
