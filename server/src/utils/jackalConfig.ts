@@ -4,6 +4,7 @@ type JackalConfig = {
     SURICATA_CONFIG: string;
     IS_DEV: boolean;
     MAX_LOGS: number;
+    PORT: number;
 };
 // Gives back full mongodb uri
 function parseMongo() {
@@ -17,7 +18,8 @@ const config: JackalConfig = {
     FULL_MONGO_URL: parseMongo(),
     SURICATA_CONFIG: process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml",
     IS_DEV: process.env.NODE_ENV === "development",
-    MAX_LOGS: process.env.MAX_LOGS ? parseInt(process.env.MAX_LOGS) : false || 10000,
+    MAX_LOGS: parseInt(process.env.MAX_LOGS || "NaN") || 10000,
+    PORT: parseInt(process.env.PORT || "NaN") || 3000,
 };
 
 export default config;

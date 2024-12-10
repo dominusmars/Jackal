@@ -51,7 +51,7 @@ async function startServer() {
         Config.IS_DEV && console.error(err);
         res.status(500).send(message);
     });
-    app.listen(3000, () => {
+    app.listen(Config.PORT, () => {
         log("info", "Server started on port 3000");
     });
 }
