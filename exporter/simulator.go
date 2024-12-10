@@ -60,12 +60,27 @@ func main() {
 		}
 		flow_id := rand.Intn(1000000000)
 
-		logEntry := fmt.Sprintf(`{"timestamp": "%s", "flow_id": %d, "in_iface": "eth1", "event_type": "dns", "src_ip": "%s", "src_port": %d, "dest_ip": "%s", "dest_port": %d, "proto": "UDP", "dns": {"type": "query", "id": 21642, "rrname": "charon.alien.moon.mine", "rrtype": "A", "tx_id": 0, "opcode": 0}}`, time.Now().Format(time.RFC3339), flow_id, source_ip, source_port, dest_ip, dest_port)
+		if rand.Intn(100) < 10 {
+			log.Default().Print("Writing alert")
+			alertActions := []string{"allowed", "drop", "reject"}
+			alertAction := alertActions[rand.Intn(len(alertActions))]
+			alertEntry := fmt.Sprintf(`{"timestamp": "%s", "flow_id": %d, "in_iface": "eth1", "event_type": "alert", "src_ip": "%s", "src_port": %d, "dest_ip": "%s", "dest_port": %d, "proto": "TCP", "alert": {"action": "%s", "gid": 1, "signature_id": %d, "rev": 1, "signature": "Test alert", "category": "Misc activity", "severity": %d}}`, time.Now().Format(time.RFC3339), flow_id, source_ip, source_port, dest_ip, dest_port, alertAction, rand.Intn(1000000), rand.Intn(5)+1)
 
-		if _, err := file.WriteString(logEntry + "\n"); err != nil {
-			log.Fatalf("Failed to write to file: %v", err)
+			if _, err := file.WriteString(alertEntry + "\n"); err != nil {
+				log.Fatalf("Failed to write to file: %v", err)
+			}
+			
+		} else {
+			logEntry := fmt.Sprintf(`{"timestamp": "%s", "flow_id": %d, "in_iface": "eth1", "event_type": "dns", "src_ip": "%s", "src_port": %d, "dest_ip": "%s", "dest_port": %d, "proto": "UDP", "dns": {"type": "query", "id": 21642, "rrname": "charon.alien.moon.mine", "rrtype": "A", "tx_id": 0, "opcode": 0}}`, time.Now().Format(time.RFC3339), flow_id, source_ip, source_port, dest_ip, dest_port)
+		
+		
+
+			if _, err := file.WriteString(logEntry + "\n"); err != nil {
+				log.Fatalf("Failed to write to file: %v", err)
+			}
 		}
-		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+		
+		time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
 		log.Default().Print("Log entry written")
 	}
 
