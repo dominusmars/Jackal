@@ -45,3 +45,4 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 
 ## known issues
 
+- if suricata.yaml has a duplicate entry it will crash the program
