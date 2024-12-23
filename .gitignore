@@ -41,3 +41,6 @@ coverage/
 eve.json
 eve.json*
 server/demoData/*
+# python venv
+.venv
+__pycache__/
