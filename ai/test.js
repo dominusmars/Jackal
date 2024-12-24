@@ -12,8 +12,23 @@ async function sendData() {
 
     for await (const line of rl) {
         try {
+            let obj = JSON.parse(line);
+            if( obj['event_type'] == 'stats' ){
+                continue;
+              
+            }
             const response = await axios.post('http://localhost:5000/add_log', JSON.parse(line));
             console.log(`Status: ${response.status} - ${JSON.stringify(response.data)}`);
+
+            let data = response.data;
+            if( data['anomaly'] == -1 ){
+                fs.appendFile('../server/demoData/anomaly.json', line + "\n", (err) => {
+                    if (err) throw err;
+                    console.log('Data written to file');
+                });
+            }
+
+            
         } catch (error) {
             console.error(`Error: ${error.message} - ${error.response.data}`);
         }
