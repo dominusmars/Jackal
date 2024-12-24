@@ -24,7 +24,10 @@ async function sendData() {
             if( data['anomaly'] == -1 ){
                 fs.appendFile('../server/demoData/anomaly.json', line + "\n", (err) => {
                     if (err) throw err;
-                    console.log('Data written to file');
+                });
+            }else {
+                fs.appendFile('../server/demoData/normal.json', line + "\n", (err) => {
+                    if (err) throw err;
                 });
             }
 
