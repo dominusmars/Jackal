@@ -378,4 +378,5 @@ export interface SuricataEveLog {
     full_text: string;
     hash: string;
     tag?: string;
+    anomaly?: boolean;
 }

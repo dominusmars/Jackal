@@ -10,6 +10,8 @@ type messageFromDB = {
     data: SuricataEveLog;
 };
 
+// This process listens for messages from the main process and exports them to MongoDB
+// Used for exporting Suricata logs to the database and keeping the main process free
 async function startListening() {
     log("info", "[eve-process] Connecting to MongoDB at " + config.FULL_MONGO_URL);
 

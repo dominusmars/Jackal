@@ -20,7 +20,6 @@ const config: WebpackConfiguration = {
     devServer: {
         open: true,
         host: "localhost",
-        server: "3000",
     },
     plugins: [
         // Add your plugins here

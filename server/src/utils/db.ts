@@ -85,6 +85,7 @@ class DataBase {
     }
 
     // Processes logs from the eve.json file and adds them to the database
+    // Used for initialization of the database
     // This function will not be called if the log file is too large
     processLogsToDB() {
         let stream = fs.createReadStream(suricata.getEVELogPath());
