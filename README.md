@@ -39,10 +39,9 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 -   Implement a way to install automatically on systems
 -   Add user authentication and authorization
 -   Improve documentation
--   Add tooltips to settings
--   Create another backend using python? for easier deployments unless we create a easier way to get node installed quickly.
 -   Error Handling :0
+-   Refactor Code with interfaces
 
 ## known issues
 
-- if suricata.yaml has a duplicate entry it will crash the program
+-   if suricata.yaml has a duplicate entry it will crash the program

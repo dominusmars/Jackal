@@ -20,6 +20,7 @@ const MainNavBar: React.FC = () => {
                 <Link to="/interfaces">Interfaces</Link>
                 <Link to="/logs">Service Logs</Link>
                 <Link to="/config">Config</Link>
+                <Link to="/monitor">Monitor Settings</Link>
             </Navbar.Collapse>
         </Navbar>
     );

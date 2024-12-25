@@ -5,6 +5,8 @@ type JackalConfig = {
     IS_DEV: boolean;
     MAX_LOGS: number;
     PORT: number;
+    NETWORK_MONITOR: string;
+    NETWORK_MONITOR_ACTIVE: boolean;
 };
 // Gives back full mongodb uri
 function parseMongo() {
@@ -20,6 +22,8 @@ const config: JackalConfig = {
     IS_DEV: process.env.NODE_ENV === "development",
     MAX_LOGS: parseInt(process.env.MAX_LOGS || "NaN") || 10000,
     PORT: parseInt(process.env.PORT || "NaN") || 3000,
+    NETWORK_MONITOR: process.env.NETWORK_MONITOR || "http://localhost:5000",
+    NETWORK_MONITOR_ACTIVE: !!process.env.NETWORK_MONITOR_ACTIVE || false,
 };
 
 export default config;

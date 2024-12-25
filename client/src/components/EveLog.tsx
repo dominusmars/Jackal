@@ -10,7 +10,7 @@ import { CiFlag1 } from "react-icons/ci";
 import RuleModal from "./popups/RuleModal";
 import { useRules } from "@/Providers/RulesProvider";
 export function EveLog({ log }: { log: SuricataEveLog }) {
-    const {addRule} = useRules();
+    const { addRule } = useRules();
     const [showDetails, setShowDetails] = useState(false);
     const [tag, setTag] = useState<string | undefined>(log.tag);
     if (!log) {
@@ -28,6 +28,9 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
         }
         if (log.alert.action === "reject") {
             return "bg-yellow-200 dark:bg-yellow-700";
+        }
+        if (log.anomaly) {
+            return "bg-blue-200 dark:bg-blue-700";
         }
         return "";
     }
@@ -125,7 +128,7 @@ export function EveLog({ log }: { log: SuricataEveLog }) {
                                 </div>
                             )}
                             <div className="right-3 absolute top-2">
-                                <RuleModal log={log} addRule={addRule}/>
+                                <RuleModal log={log} addRule={addRule} />
                             </div>
                         </div>
                         <h3 className="">Raw Log:</h3>

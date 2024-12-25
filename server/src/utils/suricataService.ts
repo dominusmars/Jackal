@@ -19,16 +19,20 @@ import path from "path";
 import { log } from "./debug";
 import { EventEmitter } from "events";
 import tail from "tail";
+import { Network } from "inspector/promises";
+import NetworkMonitor from "./networkMonitor";
+import config from "./jackalConfig";
 
 const fromJackal = /from jackal/;
 const isDev = process.env.NODE_ENV === "development";
 const SURICATA_CONFIG = process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml";
-
+const ACTIVE_MONITOR = config.NETWORK_MONITOR_ACTIVE;
 class Suricata extends EventEmitter<{
     "eve-updated": string[]; // Already checked and trimmed
 }> {
     serviceConfig: SuricataConfig;
     eveTail: tail.Tail | undefined;
+    activeMonitor: boolean;
     constructor() {
         super();
         this.serviceConfig = this.getSuricataConfig();
@@ -40,23 +44,50 @@ class Suricata extends EventEmitter<{
         log("info", `Service Log Path: ${this.getServicePath()}`);
         log("info", `Rules Path: ${this.getRulesPath()}`);
         this.listenForEve();
+        this.activeMonitor = ACTIVE_MONITOR;
     }
 
     // Eve Parse function, listens to the eve.json file and emits an event when a new log is seen
     private listenForEve() {
         log("info", "Listening for EVE Logs");
-        const eveTail = new tail.Tail(this.getEVELogPath(), {});
+        const eveTail = new tail.Tail(this.getEVELogPath(), {
+            follow: true,
+            useWatchFile: process.platform == "win32",
+        });
         // On windows this seems to happen on a interval of 1 second
-        eveTail.on("line", (line: string) => {
+        eveTail.on("line", async (line: string) => {
             const trimLine = line.trim();
             if (trimLine == "") return;
-            // elementary json check, ps terrible way to match json format
-            // should be fine because we're taking it from the eve.json file...
-            if (!(trimLine.startsWith("{") && trimLine.endsWith("}"))) return;
-            this.emit("eve-updated", trimLine);
+
+            // If the monitor is not active, we just emit the eve log
+            if (!this.activeMonitor) {
+                this.emit("eve-updated", trimLine);
+                return;
+            }
+
+            // for now were just gonna json parse it and then stringify it again
+            // Would rather have a faster way to do this
+            try {
+                let json = JSON.parse(trimLine) as SuricataEveLog;
+                const analysis = await NetworkMonitor.analyze(json);
+                json.anomaly = analysis.anomaly;
+                this.emit("eve-updated", JSON.stringify(json));
+            } catch (error) {
+                return log("error", "Error parsing eve log");
+            }
         });
         this.eveTail = eveTail;
     }
+    stopMonitor() {
+        this.activeMonitor = false;
+    }
+    startMonitor() {
+        this.activeMonitor = true;
+    }
+    getMonitorStatus() {
+        return this.activeMonitor;
+    }
+
     stopListeningForEve() {
         if (this.eveTail) {
             this.eveTail.unwatch();

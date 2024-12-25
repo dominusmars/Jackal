@@ -13,6 +13,7 @@ import Interfaces from "./pages/Interfaces";
 import Tagged from "./pages/Tagged";
 import Config from "./pages/Config";
 import ServiceLogsPage from "./pages/Logs";
+import Monitor from "./pages/Monitor";
 
 const App: React.FC = () => {
     return (
@@ -30,6 +31,7 @@ const App: React.FC = () => {
                                 <Route path="/rules" element={<Rules />} />
                                 <Route path="/interfaces" element={<Interfaces />} />
                                 <Route path="/config" element={<Config />} />
+                                <Route path="/monitor" element={<Monitor/>}/>
 
                                 {/* <Route path="/about" element={} /> */}
                             </Routes>
