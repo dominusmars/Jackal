@@ -12,5 +12,5 @@ export const SuricataEveSearchFiltersValidators = Joi.object<SuricataEveSearch>(
     startTime: Joi.string().optional().allow(""),
     endTime: Joi.string().optional().allow(""),
     search: Joi.string().optional().allow(""),
-    inverseSearch: Joi.boolean().optional().allow(""),
+    inverseSearch: Joi.string().optional().allow(""),
 });
