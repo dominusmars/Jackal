@@ -26,9 +26,11 @@ function checkEnv() {
     }
 }
 
-async function startServer() {
+async function setupMiddleware() {
     app.use(morgan("combined"));
     app.use(express.json());
+}
+async function setupRoutes() {
     app.use(
         "/",
         (await router({
@@ -40,17 +42,25 @@ async function startServer() {
         })) as any
     );
     app.use("/public/", express.static("./public"));
-
     app.use("*", (req: express.Request, res: express.Response) => {
         res.sendFile("index.html", { root: "./public" });
     });
+}
 
-    app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
+async function setupErrorHandling() {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         let message = Config.IS_DEV ? err.message : "Internal Server Error";
         log("error", err.message);
         Config.IS_DEV && console.error(err);
         res.status(500).send(message);
     });
+}
+
+async function startServer() {
+    await setupMiddleware();
+    await setupErrorHandling();
+    await setupRoutes();
+
     app.listen(Config.PORT, () => {
         log("info", "Server started on port 3000");
     });
