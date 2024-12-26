@@ -17,7 +17,7 @@ type NetworkMonitorAnalyzeResponse = {
     anomaly: boolean;
 };
 
-class NetworkMonitor {
+export class NetworkMonitor {
     private static isHealthy: boolean = false;
     private static lastChecked: number = 0;
     private static checkInterval: number = 60000; // 1 minute

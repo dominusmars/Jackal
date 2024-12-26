@@ -1,8 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { createReadStream } from "fs";
-import readline from "readline";
-import suricata from "../../../utils/suricataService";
-
 import db from "@/utils/db";
 
 export const GET = [

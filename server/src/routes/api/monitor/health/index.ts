@@ -1,4 +1,3 @@
-import { SuricataConfig } from "lib/suricata";
 import { NextFunction, Request, Response } from "express";
 import networkMonitor from "@/utils/networkMonitor";
 

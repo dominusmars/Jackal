@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { SuricataRule } from "lib/suricata";
-import { makeSuricataRuleString, testSuricataRule } from "../../../utils/suricataUtils";
-import suricata from "../../../utils/suricataService";
+import { SuricataRuleClass } from "@/utils/suricata/Rules";
 
 export const GET = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let rules = await suricata.getRules();
+            let rules = await SuricataRuleClass.getRules();
             res.json(rules);
         } catch (error) {
             next(error);
@@ -17,13 +15,13 @@ export const GET = [
 export const POST = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const rule: SuricataRule = req.body;
-            let stringedRule = makeSuricataRuleString(rule);
-            let isValid = testSuricataRule(stringedRule);
+            const rule = new SuricataRuleClass(req.body);
+
+            let isValid = rule.isValid();
             if (!isValid) {
                 return res.status(400).send("Invalid Rule");
             }
-            let addedRule = await suricata.addRule(rule);
+            let addedRule = await rule.addRule();
             // Add rule to suricata
             res.json(addedRule);
         } catch (error) {
@@ -34,15 +32,14 @@ export const POST = [
 export const DELETE = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const rule: SuricataRule = req.body;
+            const rule = new SuricataRuleClass(req.body);
 
-            let stringedRule = makeSuricataRuleString(rule);
-            let isValid = testSuricataRule(stringedRule);
+            let isValid = rule.isValid();
             if (!isValid) {
                 return res.status(400).send("Invalid Rule");
             }
 
-            await suricata.removeRule(rule);
+            await rule.removeRule();
             // Remove rule from suricata
 
             res.send("Rule Removed");

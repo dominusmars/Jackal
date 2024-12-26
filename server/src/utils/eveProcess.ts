@@ -14,29 +14,37 @@ type messageFromDB = {
 // Used for exporting Suricata logs to the database and keeping the main process free
 async function startListening() {
     log("info", "[eve-process] Connecting to MongoDB at " + config.FULL_MONGO_URL);
+    try {
+        const client = new mongodb.MongoClient(config.FULL_MONGO_URL, {});
+        await client.connect();
+        const db = client.db(dbName);
+        log("info", "[eve-process] Connected to MongoDB");
+        const logQueue: SuricataEveLog[] = [];
+        const exportQueue = throttle(async () => {
+            const currentQueue = [...logQueue];
+            logQueue.length = 0;
+            await db.collection("eve").insertMany(currentQueue, { ordered: false });
+            config.IS_DEV && log("info", "[eve-process] Exported queue " + currentQueue.length);
+        }, 1000);
 
-    const client = new mongodb.MongoClient(config.FULL_MONGO_URL);
-    await client.connect();
-    const db = client.db(dbName);
-    log("info", "[eve-process] Connected to MongoDB");
-    const logQueue: SuricataEveLog[] = [];
-    const exportQueue = throttle(async () => {
-        const currentQueue = [...logQueue];
-        logQueue.length = 0;
-        await db.collection("eve").insertMany(currentQueue, { ordered: false });
-        config.IS_DEV && log("info", "[eve-process] Exported queue " + currentQueue.length);
-    }, 1000);
+        process.on("message", (message: messageFromDB) => {
+            if ((message as any) == "exit") {
+                process.exit(0);
+            }
 
-    process.on("message", (message: messageFromDB) => {
-        if (typeof message.data == "string") {
-            log("error", "[eve-process] Invalid data type: " + typeof message.data);
-            return;
-        }
-        if (message.type === "eve-log") {
-            logQueue.push(message.data);
-            exportQueue();
-        }
-    });
+            if (typeof message.data == "string") {
+                log("error", "[eve-process] Invalid data type: " + typeof message.data);
+                return;
+            }
+            if (message.type === "eve-log") {
+                logQueue.push(message.data);
+                exportQueue();
+            }
+        });
+    } catch (error) {
+        log("error", "[eve-process] Error" + error);
+        startListening();
+    }
 }
 
 startListening();

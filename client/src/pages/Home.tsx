@@ -187,8 +187,8 @@ const Home: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedLogs.map((log) => (
-                                <EveLog key={log.hash} log={log} />
+                            {paginatedLogs.map((log, i) => (
+                                <EveLog key={i} log={log} />
                             ))}
                         </tbody>
                     </table>
