@@ -24,17 +24,29 @@ class DataBase {
 
         const client = new MongoClient(config.FULL_MONGO_URL, {});
 
-        client.connect().then(() => {
-            log("info", "Connected to MongoDB");
-            // Might be a problem if there are too many logs, if this.updateLogs gets called too much it can cause a heap overflow
-            suricata.on("eve-updated", async (logs: string) => {
-                await this.addLogToDB(logs);
+        client
+            .connect()
+            .then(() => {
+                log("info", "Connected to MongoDB");
+                // Might be a problem if there are too many logs, if this.updateLogs gets called too much it can cause a heap overflow
+                suricata.on("eve-updated", async (logs: string) => {
+                    await this.addLogToDB(logs);
+                });
+
+                this.init();
+                this.ready = true;
+            })
+            .catch((error) => {
+                // Mongodb handles reconnecting, so we don't need to do anything here
+                log("error", "MongoDB error: " + error);
             });
-
-            this.init();
-            this.ready = true;
+        client.on("error", (error) => {
+            // MongoDb handles reconnecting, so we don't need to do anything here
+            log("error", "MongoDB error: " + error);
         });
-
+        client.on("timeout", () => {
+            log("error", "MongoDB timeout");
+        });
         // Child process for queueing logs to the database, This allows for batch processing on a different thread
         this.client = client;
         this.db = client.db(this.dbName);
@@ -44,11 +56,14 @@ class DataBase {
     }
     private getEveQueueProcess() {
         let files = fs.readdirSync(__dirname);
-        if (files.includes("eveProcess.js")) {
-            return __dirname + "/eveProcess";
+        let eveQueueName = "eveQueue";
+        let eveQueueJS = eveQueueName + ".js";
+
+        if (files.includes(eveQueueJS)) {
+            return __dirname + "/" + eveQueueName;
         } else {
             // running in typescript doesn't work of jest tests
-            return __dirname + "../../../dist/utils/eveProcess.js";
+            return __dirname + "../../../dist/utils/" + eveQueueJS;
         }
     }
     spawnEveChild() {
@@ -65,14 +80,15 @@ class DataBase {
     }
     // Initializes the database by checking the size of the log file and then processing it
     init() {
-        let stat = fs.statSync(SuricataService.getEVELogPath());
-        let fileSize = stat.size;
         // Speeds up the db search by creating indexes
         this.db.collection(this.eveCollectionName).createIndex({ hash: 1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ timestamp: -1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ in_iface: 1, timestamp: -1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ proto: 1, timestamp: -1 }, { unique: false });
         this.db.collection(this.eveCollectionName).createIndex({ event_type: 1, timestamp: -1 }, { unique: false });
+
+        let stat = fs.statSync(SuricataService.getEVELogPath());
+        let fileSize = stat.size;
         if (fileSize > 50 * 1024 * 1024) {
             log("error", "Log file is too large, skipping processing");
             log("info", "Log file size: " + fileSize);

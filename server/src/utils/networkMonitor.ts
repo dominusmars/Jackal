@@ -17,6 +17,7 @@ type NetworkMonitorAnalyzeResponse = {
     anomaly: boolean;
 };
 
+// If we need more services we might want to create a class for services. that would check available of a service and check health
 export class NetworkMonitor {
     private static isHealthy: boolean = false;
     private static lastChecked: number = 0;

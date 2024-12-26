@@ -7,7 +7,7 @@ function getTimeStamp(): string {
 }
 
 type LogLevel = "info" | "warning" | "error" | "debug" | "trace";
-
+let processName = "";
 // Log function that logs to console
 // This is the most important function in the whole of the project
 function log(level: LogLevel, message: string, ...args: string[]): void {
@@ -40,11 +40,15 @@ function log(level: LogLevel, message: string, ...args: string[]): void {
             logFunction = console.log;
             colorFunction = colors.white;
     }
+    let full_log = `[${level.toUpperCase()}] [${timeStamp}] ${processName != "" ? `[${processName}]` : ""}: ${message}`;
     if (PLAIN_TEXT) {
-        logFunction(`[${level.toUpperCase()}] [${timeStamp}]: ${message}`, args);
+        logFunction(full_log, ...args);
         return;
     }
-    logFunction(colorFunction(`[${level.toUpperCase()}] [${timeStamp}]: ${message}`));
+    logFunction(colorFunction(full_log), ...args);
+}
+export function setProcess(name: string) {
+    processName = name;
 }
 
 export function logObject(obj: any): void {
