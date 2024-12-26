@@ -2,6 +2,7 @@
     "compilerOptions": {
         "incremental": true,
         "target": "ES2022",
+        "moduleResolution": "node",
         "module": "CommonJS",
         "jsx": "react",
         "outDir": "./dist",
@@ -14,7 +15,7 @@
         "allowSyntheticDefaultImports": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "rootDirs": ["./src"],
+        "rootDirs": ["./src", "test"],
         "paths": {
             "@/*": ["./*"],
             "@utils/*": ["./utils/*"],
@@ -22,6 +23,6 @@
             "@validators/*": ["./requestValidators/*"]
         }
     },
-    "include": ["./src", "./src/**/*.ts"],
-    "exclude": ["node_modules/", "demoData/", "demoData/eve.json"]
+    "include": ["./src", "./src/**/*.ts", "test"],
+    "exclude": ["node_modules/", "demoData/", "demoData/eve.json", "test/**/*.ts", "test/*"]
 }

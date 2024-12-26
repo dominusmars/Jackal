@@ -1,8 +1,8 @@
 process.env.NODE_ENV = "development";
-process.env.MONGO_URI = "192.168.1.14:27017";
+process.env.MONGO_URI = "192.168.1.206:27017";
 import { SuricataEveFilter, SuricataEveSearch } from "lib";
 import db from "../src/utils/db";
-import suricata from "../src/utils/suricataService";
+import { suricata } from "../src/utils/suricata/Service";
 
 describe("Db", () => {
     beforeAll(async () => {

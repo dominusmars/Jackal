@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import suricata from "../../../../utils/suricataService";
+import { SuricataService } from "@/utils/suricata/Service";
 export const GET = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.sendFile(suricata.getServicePath());
+            res.sendFile(SuricataService.getServicePath());
         } catch (error) {
             next(error);
         }

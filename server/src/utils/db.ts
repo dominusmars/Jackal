@@ -1,12 +1,12 @@
 import { SuricataEveFilter, SuricataEveLog, SuricataEveSearch } from "lib";
 import mongodb, { Filter, InsertOneResult, MongoClient } from "mongodb";
-import suricata from "./suricataService";
 import fs from "fs";
 import readline from "readline";
 import { log } from "./debug";
 import sha256 from "sha256";
-import { ChildProcess, fork } from "child_process";
+import { ChildProcess, fork, ProcessEnvOptions } from "child_process";
 import config from "./jackalConfig";
+import { suricata, SuricataService } from "./suricata/Service";
 
 class DataBase {
     db: mongodb.Db;
@@ -23,6 +23,7 @@ class DataBase {
         this.dbName = config.IS_DEV ? "jackal-dev" : "jackal";
 
         const client = new MongoClient(config.FULL_MONGO_URL, {});
+
         client.connect().then(() => {
             log("info", "Connected to MongoDB");
             // Might be a problem if there are too many logs, if this.updateLogs gets called too much it can cause a heap overflow
@@ -41,20 +42,30 @@ class DataBase {
         this.ready = false;
         this.spawnEveChild();
     }
+    private getEveQueueProcess() {
+        let files = fs.readdirSync(__dirname);
+        if (files.includes("eveProcess.js")) {
+            return __dirname + "/eveProcess";
+        } else {
+            // running in typescript doesn't work of jest tests
+            return __dirname + "../../../dist/utils/eveProcess.js";
+        }
+    }
     spawnEveChild() {
-        this.logChild = fork(__dirname + "/eveProcess", {
+        this.logChild = fork(this.getEveQueueProcess(), {
             stdio: ["inherit", "inherit", "inherit", "ipc"],
+            env: process.env,
         });
         this.logChild.on("error", (error: Error) => {
             log("error", "Error in child process: " + error);
         });
         this.logChild.on("exit", (code) => {
-            log("error", "Child process exited with code: " + code);
+            if (code !== 0) log("error", "Child process exited with code: " + code);
         });
     }
     // Initializes the database by checking the size of the log file and then processing it
     init() {
-        let stat = fs.statSync(suricata.getEVELogPath());
+        let stat = fs.statSync(SuricataService.getEVELogPath());
         let fileSize = stat.size;
         // Speeds up the db search by creating indexes
         this.db.collection(this.eveCollectionName).createIndex({ hash: 1 }, { unique: false });
@@ -88,7 +99,7 @@ class DataBase {
     // Used for initialization of the database
     // This function will not be called if the log file is too large
     processLogsToDB() {
-        let stream = fs.createReadStream(suricata.getEVELogPath());
+        let stream = fs.createReadStream(SuricataService.getEVELogPath());
         let rl = readline.createInterface({
             input: stream,
             crlfDelay: Infinity,
@@ -239,6 +250,7 @@ class DataBase {
     }
     close() {
         this.client.close();
+        this.logChild.send("exit");
     }
 }
 

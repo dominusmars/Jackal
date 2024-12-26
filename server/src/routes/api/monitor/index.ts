@@ -1,4 +1,4 @@
-import suricata from "@/utils/suricataService";
+import { suricata } from "@/utils/suricata/Service";
 import { NextFunction, Request, Response } from "express";
 
 export const POST = [
@@ -10,10 +10,10 @@ export const POST = [
                 throw new Error("Invalid active value");
             }
             if (active === "true") {
-                suricata.startMonitor();
+                suricata.startNetworkMonitor();
             }
             if (active === "false") {
-                suricata.stopMonitor();
+                suricata.stopNetworkMonitor();
             }
             if (active === "true" || active === "false") {
                 res.json({ active: active });

@@ -1,19 +1,20 @@
-version: "3"
 
 services:
     jackal:
         build:
-            context: ./server
+            context: .
         ports:
             - "3000:3000"
         depends_on:
             - monitor
         volumes:
-            - /etc/suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
-            - /var/log/suricata/eve.json:/var/log/suricata/eve.json:ro
+            - /etc/suricata:/etc/suricata:ro
+            - /var/log/suricata:/var/log/suricata:ro
 
     monitor:
         build:
             context: ./monitor
         ports:
             - "5000:5000"
+        volumes:
+            - /var/log/monitor:/var/log/monitor:ro

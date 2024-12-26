@@ -1,4 +1,3 @@
-import { SuricataEveSearchFiltersValidators } from "@/requestValidators/searchValidator";
 import db from "@/utils/db";
 import { NextFunction, Request, Response } from "express";
 
