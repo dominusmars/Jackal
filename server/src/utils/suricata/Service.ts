@@ -95,6 +95,9 @@ export class SuricataService extends EventEmitter<{
         return isDev ? path.join(process.cwd(), "./demoData/suricata.yaml") : SURICATA_CONFIG;
     }
     static getEVELogPath(): string {
+        if (!this.serviceConfig) {
+            this.getSuricataConfig();
+        }
         const SURICATA_EVE = process.env.SURICATA_EVE || path.join(this.serviceConfig["default-log-dir"], "eve.json");
         return isDev ? path.join(process.cwd(), "./demoData/eve.json") : SURICATA_EVE;
     }

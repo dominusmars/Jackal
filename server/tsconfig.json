@@ -2,6 +2,7 @@
     "compilerOptions": {
         "incremental": true,
         "target": "ES2022",
+        "moduleResolution": "node",
         "module": "CommonJS",
         "jsx": "react",
         "outDir": "./dist",

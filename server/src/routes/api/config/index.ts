@@ -1,4 +1,4 @@
-import { SuricataConfig } from "lib/suricata";
+import { SuricataConfig } from "lib";
 import { NextFunction, Request, Response } from "express";
 import { SuricataService } from "@/utils/suricata/Service";
 

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { SuricataCaptureType } from "lib/suricata";
+import { SuricataCaptureType } from "lib";
 import {
     SuricataAFInterfaceValidator,
     SuricataDPDKInterfaceValidator,

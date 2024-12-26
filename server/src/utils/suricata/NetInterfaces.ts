@@ -44,7 +44,7 @@ class DPDKInterface implements SuricataNetworkInterface<SuricataDPDKInterface> {
         let config = SuricataService.getSuricataConfig();
         if (!config["dpdk"].interfaces) config["dpdk"].interfaces = [this.interface];
         else
-            config["dpdk"].interfaces = config["dpdk"].interfaces.map((iface) => {
+            config["dpdk"].interfaces = config["dpdk"].interfaces.map((iface: SuricataDPDKInterface) => {
                 if (iface.interface === this.interface.interface) {
                     return this.interface;
                 }
@@ -56,7 +56,7 @@ class DPDKInterface implements SuricataNetworkInterface<SuricataDPDKInterface> {
     async remove(): Promise<void> {
         let config = SuricataService.getSuricataConfig();
         if (!config["dpdk"].interfaces) config["dpdk"].interfaces = [];
-        config["dpdk"].interfaces = config["dpdk"].interfaces.filter((iface) => iface.interface !== this.interface.interface);
+        config["dpdk"].interfaces = config["dpdk"].interfaces.filter((iface: SuricataDPDKInterface) => iface.interface !== this.interface.interface);
         SuricataService.writeSuricataConfig(config);
     }
     async add(): Promise<void> {
@@ -80,7 +80,7 @@ class PcapInterface implements SuricataNetworkInterface<SuricataPcapInterface> {
         let config = SuricataService.getSuricataConfig();
         if (!config["pcap"]) config["pcap"] = [this.interface];
         else
-            config["pcap"] = config["pcap"].map((iface) => {
+            config["pcap"] = config["pcap"].map((iface: SuricataPcapInterface) => {
                 if (iface.interface === this.interface.interface) {
                     return this.interface;
                 }
@@ -91,7 +91,7 @@ class PcapInterface implements SuricataNetworkInterface<SuricataPcapInterface> {
     async remove(): Promise<void> {
         let config = SuricataService.getSuricataConfig();
         if (!config["pcap"]) config["pcap"] = [];
-        config["pcap"] = config["pcap"].filter((iface) => iface.interface !== this.interface.interface);
+        config["pcap"] = config["pcap"].filter((iface: SuricataPcapInterface) => iface.interface !== this.interface.interface);
 
         SuricataService.writeSuricataConfig(config);
     }
@@ -116,7 +116,7 @@ class AFInterface implements SuricataNetworkInterface<SuricataAFInterface> {
         let config = SuricataService.getSuricataConfig();
         if (!config["af-packet"]) config["af-packet"] = [this.interface];
         else
-            config["af-packet"] = config["af-packet"].map((iface) => {
+            config["af-packet"] = config["af-packet"].map((iface: SuricataAFInterface) => {
                 if (iface.interface === this.interface.interface) {
                     return this.interface;
                 }
@@ -127,7 +127,7 @@ class AFInterface implements SuricataNetworkInterface<SuricataAFInterface> {
     async remove(): Promise<void> {
         let config = SuricataService.getSuricataConfig();
         if (!config["af-packet"]) config["af-packet"] = [];
-        config["af-packet"] = config["af-packet"].filter((iface) => iface.interface !== this.interface.interface);
+        config["af-packet"] = config["af-packet"].filter((iface: SuricataAFInterface) => iface.interface !== this.interface.interface);
         SuricataService.writeSuricataConfig(config);
     }
     async add(): Promise<void> {
@@ -152,7 +152,7 @@ class XDPInterface implements SuricataNetworkInterface<SuricataXDPInterface> {
         let config = SuricataService.getSuricataConfig();
         if (!config["af-xdp"]) config["af-xdp"] = [this.interface];
         else
-            config["af-xdp"] = config["af-xdp"].map((iface) => {
+            config["af-xdp"] = config["af-xdp"].map((iface: SuricataXDPInterface) => {
                 if (iface.interface === this.interface.interface) {
                     return this.interface;
                 }
@@ -163,7 +163,7 @@ class XDPInterface implements SuricataNetworkInterface<SuricataXDPInterface> {
     async remove(): Promise<void> {
         let config = SuricataService.getSuricataConfig();
         if (!config["af-xdp"]) config["af-xdp"] = [];
-        config["af-xdp"] = config["af-xdp"].filter((iface) => iface.interface !== this.interface.interface);
+        config["af-xdp"] = config["af-xdp"].filter((iface: SuricataXDPInterface) => iface.interface !== this.interface.interface);
         SuricataService.writeSuricataConfig(config);
     }
     async add(): Promise<void> {

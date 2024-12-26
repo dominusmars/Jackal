@@ -39,10 +39,10 @@ async function startServer() {
             },
         })) as any
     );
-    app.use("/public/", express.static("../public"));
+    app.use("/public/", express.static("./public"));
 
     app.use("*", (req: express.Request, res: express.Response) => {
-        res.sendFile("index.html", { root: "../public" });
+        res.sendFile("index.html", { root: "./public" });
     });
 
     app.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {

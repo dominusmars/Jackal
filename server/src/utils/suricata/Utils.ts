@@ -1,4 +1,4 @@
-import { SuricataRule } from "lib/suricata";
+import { SuricataRule } from "lib";
 
 // Regex for parsing suricata rules, its beutiful isnt it
 const ruleRegex =

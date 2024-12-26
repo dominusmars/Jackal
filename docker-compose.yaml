@@ -1,9 +1,8 @@
-version: "3"
 
 services:
     jackal:
         build:
-            context: ./server
+            context: .
         ports:
             - "3000:3000"
         depends_on:
@@ -17,3 +16,5 @@ services:
             context: ./monitor
         ports:
             - "5000:5000"
+        volumes:
+            - /var/log/monitor:/var/log/monitor:ro

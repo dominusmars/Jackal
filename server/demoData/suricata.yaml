@@ -193,7 +193,6 @@ dpdk:
       copy-mode: none
       copy-iface: none
 pcap:
-  - interface: eth0
   - interface: default
 pcap-file:
   checksum-checks: auto

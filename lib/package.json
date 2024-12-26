@@ -1,17 +1,21 @@
 {
-  "name": "lib",
-  "version": "1.0.0",
-  "main": "./dist/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "types": "./dist/index.d.ts",
-  "description": "",
-  "dependencies": {
-    "lib": "file:"
-  }
+    "name": "lib",
+    "version": "1.0.0",
+    "main": "./dist/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc",
+        "postinstall": "npm run build"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "types": "./dist/index.d.ts",
+    "description": "",
+    "dependencies": {
+        "lib": "file:"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.2"
+    }
 }
