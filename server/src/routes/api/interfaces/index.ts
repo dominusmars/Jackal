@@ -20,33 +20,25 @@ const filterCaptureType = (req: Request, res: Response, next: NextFunction) => {
         next();
         return;
     }
+    let error;
     switch (capture) {
         case "af-packet":
-            const { error } = SuricataAFInterfaceValidator.validate(req.body);
-            if (error) {
-                return res.status(400).send(error.message);
-            }
+            error = SuricataAFInterfaceValidator.validate(req.body).error;
             break;
         case "af-xdp":
-            const { error: errorXDP } = SuricataXDPInterfaceValidator.validate(req.body);
-            if (errorXDP) {
-                return res.status(400).send(errorXDP.message);
-            }
+            error = SuricataXDPInterfaceValidator.validate(req.body).error;
             break;
         case "dpdk":
-            const { error: errorDPDK } = SuricataDPDKInterfaceValidator.validate(req.body);
-            if (errorDPDK) {
-                return res.status(400).send(errorDPDK.message);
-            }
+            error = SuricataDPDKInterfaceValidator.validate(req.body).error;
             break;
         case "pcap":
-            const { error: errorPcap } = SuricataPcapInterfaceValidator.validate(req.body);
-            if (errorPcap) {
-                return res.status(400).send(errorPcap.message);
-            }
+            error = SuricataPcapInterfaceValidator.validate(req.body).error;
             break;
         default:
             return res.status(400).send("Invalid capture type");
+    }
+    if (error) {
+        return res.status(400).send(error.message);
     }
 
     next();

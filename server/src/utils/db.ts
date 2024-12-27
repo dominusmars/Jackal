@@ -215,9 +215,7 @@ class DataBase {
     async unsetTag(flowId: number) {
         return await this.db.collection<SuricataEveLog>(this.eveCollectionName).updateMany({ flow_id: flowId }, { $unset: { tag: 1 } });
     }
-
-    // Db search for logs based on filters
-    async searchLogs(filters: SuricataEveSearch) {
+    private buildLogSearchQuery(filters: SuricataEveSearch) {
         const query: Filter<SuricataEveLog> = {};
         if (filters.startTime || filters.endTime) {
             query.timestamp = {};
@@ -257,6 +255,12 @@ class DataBase {
             let regex = new RegExp(filters.inverseSearch, "i");
             query.full_text = { $not: { $regex: regex } };
         }
+        return query;
+    }
+
+    // Db search for logs based on filters
+    async searchLogs(filters: SuricataEveSearch) {
+        let query = this.buildLogSearchQuery(filters);
         return await this.db
             .collection<SuricataEveLog>(this.eveCollectionName)
             .find(query, { projection: { full_text: 0 } })
