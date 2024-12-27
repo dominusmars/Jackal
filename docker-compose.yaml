@@ -7,9 +7,16 @@ services:
             - "3000:3000"
         depends_on:
             - monitor
+            - db
         volumes:
             - /etc/suricata:/etc/suricata:ro
             - /var/log/suricata:/var/log/suricata:ro
+        environment:
+            - MONGO_URI=root:example@db:27017
+            - MAX_LOGS=1000
+            - NETWORK_MONITOR=http://monitor:5000
+            - NETWORK_MONITOR_ACTIVE=true
+            - NODE_ENV=development
 
     monitor:
         build:
@@ -18,3 +25,19 @@ services:
             - "5000:5000"
         volumes:
             - /var/log/monitor:/var/log/monitor:ro
+
+    db:
+        image: mongo:latest
+        restart: always
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo:/var/lib/mongo
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=root
+            - MONGO_INITDB_ROOT_PASSWORD=example
+
+volumes: 
+    mongo: 
+        driver: local
+

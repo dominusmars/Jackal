@@ -26,7 +26,7 @@ function parseMongoUri() {
         mongo_uri += ":" + defaultPort;
     } else {
         // check if port is valid
-        let targetPort = mongo_uri.split(":")[2];
+        let targetPort = mongo_uri.substring(mongo_uri.lastIndexOf(":") + 1);
         let targetPortInt = parseInt(targetPort);
         if (isNaN(targetPortInt) || targetPortInt < 1 || targetPortInt > 65535) {
             throw new Error("Invalid port number for DB");
