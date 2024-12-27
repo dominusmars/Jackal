@@ -15,10 +15,6 @@ Make sure to have Suricata installed on the system you want to deploy this on. P
 ## Install
 
 ```sh
-cd client
-npm i
-npm run build
-cd ..
 cd server
 npm i
 npm run build
@@ -33,15 +29,14 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 
 ## TO DO
 
--   Docker
 -   Implement more settings and configurations
 -   Add more tests
 -   Implement a way to install automatically on systems
 -   Add user authentication and authorization
 -   Improve documentation
 -   Error Handling :0
--   Refactor Code with interfaces
 
 ## known issues
 
 -   if suricata.yaml has a duplicate entry it will crash the program
+-   when tag button doesn't show tagged log after reload
