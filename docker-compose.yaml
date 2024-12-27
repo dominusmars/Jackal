@@ -23,9 +23,6 @@ services:
             context: ./monitor
         ports:
             - "5000:5000"
-        volumes:
-            - /var/log/monitor:/var/log/monitor:ro
-
     db:
         image: mongo:latest
         restart: always
