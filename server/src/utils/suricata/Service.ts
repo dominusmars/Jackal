@@ -31,11 +31,31 @@ export class SuricataService extends EventEmitter<{
         this.listenForEve();
         SuricataService.activeNetworkMonitor = ACTIVE_MONITOR;
     }
+    private static parseConfig(configString: string, options: yaml.ParseOptions): [SuricataConfig, Error | null] | [null, Error] {
+        try {
+            return [yaml.parse(configString, options), null];
+        } catch (error) {
+            return [null, error as Error];
+        }
+    }
 
     static getSuricataConfig(): SuricataConfig {
         try {
             let configString = fs.readFileSync(SuricataService.getConfigPath(), "utf-8");
-            let config = yaml.parse(configString);
+
+            let [config, error] = this.parseConfig(configString, { prettyErrors: true });
+            if (error) {
+                log("warning", "Error while parsing Suricata Config, trying again", error.message);
+                [config, error] = this.parseConfig(configString, { prettyErrors: true, uniqueKeys: false });
+                if (error) {
+                    log("error", "Error while parsing Suricata Config", error.message);
+                    process.exit(1);
+                }
+            }
+            if (!config) {
+                log("error", "Error reading Suricata Config", "Config is null");
+                process.exit(1);
+            }
             this.serviceConfig = config;
             return config;
         } catch (error: any) {
