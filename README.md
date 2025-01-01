@@ -23,6 +23,8 @@ npm run start
 
 These will be automated in future.
 
+recommended: use the docker-compose file after changing the environment vars
+
 ## Open-source
 
 Following in the footsteps of Suricata, all of this is free to use and managed as deemed necessary.
@@ -38,5 +40,4 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 
 ## known issues
 
--   if suricata.yaml has a duplicate entry it will crash the program
 -   when tag button doesn't show tagged log after reload
