@@ -37,7 +37,7 @@ Following in the footsteps of Suricata, all of this is free to use and managed a
 -   Add user authentication and authorization
 -   Improve documentation
 -   Error Handling :0
-
+-   Change backend to a faster lanagage (Go), and implment protobuf 
 ## known issues
 
 -   when tag button doesn't show tagged log after reload
