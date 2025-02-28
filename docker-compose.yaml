@@ -1,10 +1,7 @@
-
 services:
     jackal:
         build:
             context: .
-        ports:
-            - "3000:3000"
         depends_on:
             - monitor
             - db
@@ -17,12 +14,30 @@ services:
             - NETWORK_MONITOR=http://monitor:5000
             - NETWORK_MONITOR_ACTIVE=true
             - NODE_ENV=development
+        networks:
+            - internal
+    nginx:
+        build:
+        context: nginx-basic-auth
+        ports:
+            - "80:80"
+        depends_on:
+            - frontend
+        environment:
+            - FORWARD_HOST=jackal
+            - FORWARD_PORT=3000
+            - BASIC_USERNAME=rusec
+            - BASIC_PASSWORD=CHANGEME
+        networks:
+            - internal
 
     monitor:
         build:
             context: ./monitor
-        ports:
-            - "5000:5000"
+        # ports:
+        #     - "5000:5000"
+        networks:
+            - internal
     db:
         image: mongo:latest
         restart: always
@@ -33,8 +48,12 @@ services:
         environment:
             - MONGO_INITDB_ROOT_USERNAME=root
             - MONGO_INITDB_ROOT_PASSWORD=example
+        networks:
+            - internal
 
-volumes: 
-    mongo: 
+volumes:
+    mongo:
         driver: local
 
+networks:
+    internal:
