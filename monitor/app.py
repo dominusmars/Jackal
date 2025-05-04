@@ -14,14 +14,16 @@ retrain_threshold = 100
 label_encoders = {}
 contamination = 0.1
 def preprocess_df(df,event_type):
+    """Preprocess the DataFrame by encoding categorical columns and normalizing numerical columns."""
     global label_encoders
     # replace na with 0s 
     df.fillna(0, inplace=True)
     
+    # split the columns into categorical and numerical
     categorical_cols = df.select_dtypes(include=['object']).columns
     numerical_cols = df.select_dtypes(include=['int64', 'float64', 'int', 'float']).columns
 
-    # Encode categorical columns
+    # Encode categorical columns, using LabelEncoder
     encoded_cols = pd.DataFrame()
     for col in categorical_cols:
         if event_type not in label_encoders:
@@ -49,9 +51,12 @@ def preprocess_df(df,event_type):
     return final_df, scaler
     
 
+
 def flatten_json(obj):
+    """Flatten a nested JSON object into a flat dictionary."""
     out = {}
     def flatten(x, name=''):
+        # Recursive function to flatten the JSON object
         if type(x) is dict:
             for a in x:
                 flatten(x[a], name + a + '_')
@@ -63,6 +68,7 @@ def flatten_json(obj):
         else:
             out[name[:-1]] = x
     flatten(obj)
+
     return out
 
 
@@ -100,18 +106,17 @@ def analyze_log():
     
     # Convert log to NumPy array for IsolationForest and encode columns
     flattened_log = flatten_json(log)
-    
-    
     log_df = pd.json_normalize(flattened_log)
     log_data, _ = preprocess_df(log_df, event_type)
     log_np = log_data.to_numpy()
    
+    # if event type is not in logs, create a new list for it
     if event_type not in logs:
         logs[event_type] = []
         
     # Append the log to the list
     logs[event_type].append(log_np)
-        
+    
     event_logs = logs[event_type]
     
     # Fit the model if we have enough logs
@@ -134,9 +139,11 @@ def analyze_log():
         # Error is usually due to mismatch in number of features
         train_event(event_type)
     
+    # remove old logs if we exceed max_logs
     if len(event_logs) > max_logs:
         logs[event_type] = logs[event_type][-max_logs:]
     
+    # Check if the prediction is -1 (anomaly) or 1 (normal)
     return jsonify({'anomaly': int(prediction[0]) == -1 })
     
 @app.route('/max_logs', methods=['POST'])

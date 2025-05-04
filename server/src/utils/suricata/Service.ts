@@ -13,6 +13,9 @@ const isDev = process.env.NODE_ENV === "development";
 const SURICATA_CONFIG = process.env.SURICATA_CONFIG || "/etc/suricata/suricata.yaml";
 const ACTIVE_MONITOR = config.NETWORK_MONITOR_ACTIVE;
 
+// Suricata Service Class
+// This class is responsible for managing the Suricata service and its configuration
+// It extends the EventEmitter class to allow for event handling, for when a new eve log is received
 export class SuricataService extends EventEmitter<{
     "eve-updated": string[]; // Already checked and trimmed
 }> {
@@ -21,6 +24,7 @@ export class SuricataService extends EventEmitter<{
     static activeNetworkMonitor: boolean;
     constructor() {
         super();
+
         log("info", "Suricata Service Initialized");
         log("info", `Suricata Config Path: ${SuricataService.getConfigPath()}`);
         log("info", `EVE Log Path: ${SuricataService.getEVELogPath()}`);
@@ -28,9 +32,12 @@ export class SuricataService extends EventEmitter<{
         log("info", `Fast Log Path: ${SuricataService.getFastPath()}`);
         log("info", `Service Log Path: ${SuricataService.getServicePath()}`);
         log("info", `Rules Path: ${SuricataService.getRulesPath()}`);
+
         this.listenForEve();
         SuricataService.activeNetworkMonitor = ACTIVE_MONITOR;
     }
+
+    // This function is used to parse the config file and return the config object
     private static parseConfig(configString: string, options: yaml.ParseOptions): [SuricataConfig, Error | null] | [null, Error] {
         try {
             return [yaml.parse(configString, options), null];
@@ -39,6 +46,7 @@ export class SuricataService extends EventEmitter<{
         }
     }
 
+    // This function is used to get the Suricata config file and parse it
     static getSuricataConfig(): SuricataConfig {
         try {
             let configString = fs.readFileSync(SuricataService.getConfigPath(), "utf-8");
@@ -78,12 +86,14 @@ export class SuricataService extends EventEmitter<{
             this.eveTail.unwatch();
         }
     }
+    // Listen for EVE logs and emit them to the listeners
     private listenForEve() {
         log("info", "Listening for EVE Logs");
         const eveTail = new tail.Tail(SuricataService.getEVELogPath(), {
             follow: true,
             useWatchFile: process.platform == "win32",
         });
+
         // On windows this seems to happen on a interval of 1 second
         eveTail.on("line", async (line: string) => {
             const trimLine = line.trim();
@@ -95,7 +105,7 @@ export class SuricataService extends EventEmitter<{
                 return;
             }
 
-            // for now were just gonna json parse it and then stringify it again
+            // For now were just gonna json parse it and then stringify it again
             // Would rather have a faster way to do this
             try {
                 let json = JSON.parse(trimLine) as SuricataEveLog;
